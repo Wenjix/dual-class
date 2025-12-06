@@ -51,7 +51,7 @@ export default function InputForm({ onSubmit, isLoading, lessonStepMode, onLesso
                      focus:border-user focus:shadow-neon-user focus-visible:ring-user text-user
                      text-2xl md:text-4xl placeholder:text-user/40 bg-transparent rounded-lg px-3 md:px-4
                      h-auto py-1 md:py-2 font-medium"
-          placeholder="profession"
+          placeholder="profession or hobby"
         />
       </div>
 
