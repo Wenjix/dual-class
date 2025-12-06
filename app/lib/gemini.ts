@@ -36,13 +36,29 @@ export async function generateImage(prompt: string): Promise<string> {
       model: 'gemini-3-pro-image-preview',
     })
 
+    // Enhanced dual lighting prompt for cinematic effect
+    const dualLightingPrompt = `
+Create a clear, educational diagram with CINEMATIC DUAL LIGHTING:
+
+LIGHTING REQUIREMENTS (CRITICAL):
+- Left side: Illuminated with WARM PINK/MAGENTA light (#F55DA8, hot pink glow)
+- Right side: Illuminated with COOL CYAN/TEAL light (#1DE3D4, electric cyan glow)
+- Background: Deep dark blue-black gradient (#0f1015 to #1a1b23)
+- Style: High contrast, cinematic split-tone color grading like a movie poster
+
+SUBJECT: ${prompt}
+
+This image will be displayed in a split-screen interface where left=pink world, right=cyan world.
+The dual lighting MUST be dramatic and unmistakable.
+`.trim()
+
     const result = await model.generateContent({
       contents: [
         {
           role: 'user',
           parts: [
             {
-              text: `Generate a clear, educational diagram: ${prompt}`,
+              text: dualLightingPrompt,
             },
           ],
         },

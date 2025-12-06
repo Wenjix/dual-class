@@ -22,50 +22,55 @@ export default function InputForm({ onSubmit, isLoading }: InputFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto space-y-4">
-      <div className="space-y-2">
-        <label htmlFor="concept" className="text-sm font-medium">
-          Teach me...
-        </label>
+    <form onSubmit={handleSubmit} className="glass-panel p-8 md:p-12 rounded-3xl max-w-4xl mx-auto">
+      <div className="text-2xl md:text-4xl text-white/90 flex flex-wrap items-baseline justify-center gap-2 md:gap-3 mb-8">
+        <span className="font-medium">Teach me</span>
+
         <Input
-          id="concept"
           type="text"
-          placeholder="e.g., Transformer Attention Mechanism"
           value={concept}
           onChange={(e) => setConcept(e.target.value)}
           disabled={isLoading}
-          className="text-base"
+          className="inline-flex w-auto min-w-[250px] md:min-w-[300px] bg-topic/10 border-2 border-topic/30
+                     focus:border-topic focus:shadow-neon-topic focus-visible:ring-topic text-topic
+                     text-2xl md:text-4xl placeholder:text-topic/40 bg-transparent rounded-lg px-3 md:px-4
+                     h-auto py-1 md:py-2 font-medium"
+          placeholder="a complex concept"
         />
-      </div>
 
-      <div className="space-y-2">
-        <label htmlFor="persona" className="text-sm font-medium">
-          ...as a...
-        </label>
+        <span className="font-medium">as a</span>
+
         <Input
-          id="persona"
           type="text"
-          placeholder="e.g., Chef, Starship Captain, Firefighter"
           value={persona}
           onChange={(e) => setPersona(e.target.value)}
           disabled={isLoading}
-          className="text-base"
+          className="inline-flex w-auto min-w-[180px] md:min-w-[200px] bg-user/10 border-2 border-user/30
+                     focus:border-user focus:shadow-neon-user focus-visible:ring-user text-user
+                     text-2xl md:text-4xl placeholder:text-user/40 bg-transparent rounded-lg px-3 md:px-4
+                     h-auto py-1 md:py-2 font-medium"
+          placeholder="profession"
         />
       </div>
 
       <Button
         type="submit"
         disabled={isLoading || !concept.trim() || !persona.trim()}
-        className="w-full"
+        className="w-full bg-gradient-to-r from-user to-topic hover:shadow-neon-user
+                   hover:from-user/90 hover:to-topic/90 transition-all duration-300
+                   text-white font-bold text-lg py-6 rounded-xl"
         size="lg"
       >
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             Generating...
           </>
         ) : (
-          "Generate"
+          <>
+            <span className="text-2xl mr-2 emoji-icon">✨</span>
+            Generate
+          </>
         )}
       </Button>
     </form>

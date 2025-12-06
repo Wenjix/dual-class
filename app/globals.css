@@ -2,49 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force dark mode theme for cinematic glass aesthetic */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
+  --background: 240 15% 8%;       /* obsidian */
+  --foreground: 0 0% 98%;          /* white */
+  --card: 240 15% 8%;              /* obsidian */
+  --card-foreground: 0 0% 98%;     /* white */
+  --popover: 240 15% 12%;          /* obsidian-light */
+  --popover-foreground: 0 0% 98%;  /* white */
+  --primary: 0 0% 98%;             /* white */
+  --primary-foreground: 240 15% 8%; /* obsidian */
+  --secondary: 240 15% 12%;        /* obsidian-light */
+  --secondary-foreground: 0 0% 98%; /* white */
+  --muted: 240 15% 12%;            /* obsidian-light */
+  --muted-foreground: 0 0% 64%;    /* gray */
+  --accent: 240 15% 12%;           /* obsidian-light */
+  --accent-foreground: 0 0% 98%;   /* white */
+  --destructive: 0 84.2% 60.2%;    /* red */
+  --destructive-foreground: 0 0% 98%; /* white */
+  --border: 0 0% 100% / 0.1;       /* white/10% */
+  --input: 0 0% 100% / 0.1;        /* white/10% */
+  --ring: 185 85% 55%;             /* topic cyan */
   --radius: 0.5rem;
 }
 
 .dark {
-  --background: 240 10% 3.9%;
+  --background: 240 15% 8%;
   --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  --card: 240 15% 8%;
   --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
+  --popover: 240 15% 12%;
   --popover-foreground: 0 0% 98%;
   --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
+  --primary-foreground: 240 15% 8%;
+  --secondary: 240 15% 12%;
   --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
+  --muted: 240 15% 12%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 240 15% 12%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
+  --border: 0 0% 100% / 0.1;
+  --input: 0 0% 100% / 0.1;
+  --ring: 185 85% 55%;
 }
 
 @layer base {
@@ -52,14 +53,62 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-obsidian text-foreground;
+    background: radial-gradient(ellipse at top, #1a1b23, #0f1015);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-glass;
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .glass-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-obsidian/90 via-obsidian/50 to-transparent;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .bifrost-divider {
+    @apply absolute inset-y-0 left-1/2 w-0.5;
+    background: linear-gradient(to bottom,
+      transparent,
+      rgba(245, 93, 168, 0.8) 20%,
+      rgba(29, 227, 212, 0.8) 80%,
+      transparent);
+    box-shadow: 0 0 20px rgba(245, 93, 168, 0.4),
+                0 0 40px rgba(29, 227, 212, 0.4);
+    transform: translateX(-50%);
+  }
+
+  .emoji-icon {
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+    display: inline-block;
+  }
+
+  .emoji-icon:hover {
+    filter: grayscale(0%);
+  }
+
+  .dual-tone-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right,
+      rgba(245, 93, 168, 0.15) 0%,
+      transparent 50%,
+      rgba(29, 227, 212, 0.15) 100%);
+    mix-blend-mode: screen;
+    pointer-events: none;
   }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
+  0%, 100% { transform: translateX(0) scale(1); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px) scale(1.02); }
+  20%, 40%, 60%, 80% { transform: translateX(8px) scale(1.02); }
 }
 
 .animate-shake {

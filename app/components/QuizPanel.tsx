@@ -56,12 +56,14 @@ export default function QuizPanel({
   }
 
   return (
-    <Card className="w-full max-w-6xl mx-auto">
-      <CardContent className="p-6 space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Quiz</h3>
-          <p className="text-base text-muted-foreground">{question}</p>
+    <Card className="glass-panel w-full max-w-6xl mx-auto border-white/10">
+      <CardContent className="p-6 md:p-8 space-y-4">
+        <div className="flex items-center gap-4">
+          <span className="text-3xl md:text-4xl emoji-icon">🎯</span>
+          <h3 className="text-xl md:text-2xl font-semibold text-white/90">Visual Challenge</h3>
         </div>
+
+        <p className="text-base md:text-lg text-white/70 leading-relaxed">{question}</p>
 
         <div className="flex gap-2">
           <Input
@@ -71,27 +73,29 @@ export default function QuizPanel({
             onChange={(e) => setUserAnswer(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={quizResult === 'correct'}
-            className={`flex-1 ${
-              quizResult === 'incorrect'
-                ? 'border-red-500 animate-shake'
-                : ''
-            }`}
+            className={`flex-1 bg-topic/10 border-2 border-topic/30
+                       focus:border-topic focus:shadow-neon-topic focus-visible:ring-topic
+                       text-topic placeholder:text-topic/40 text-base
+                       ${quizResult === 'incorrect' ? 'border-red-500 animate-shake' : ''}`}
           />
           <Button
             onClick={() => handleSubmit()}
             disabled={!userAnswer.trim() || quizResult === 'correct'}
+            className="bg-topic hover:bg-topic/90 hover:shadow-neon-topic
+                       transition-all duration-300 text-white font-semibold px-6"
           >
             Submit
           </Button>
         </div>
 
         {quizResult === 'correct' && (
-          <div className="space-y-2">
-            <Badge className="bg-green-500 hover:bg-green-500 animate-pulse">
+          <div className="space-y-2 animate-slide-in">
+            <Badge className="bg-topic/30 text-topic border-topic/50 shadow-neon-topic
+                              animate-glow-pulse text-base px-4 py-1">
               ✓ Correct!
             </Badge>
             {quizExplanation && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm md:text-base text-white/70 leading-relaxed">
                 {quizExplanation}
               </p>
             )}
@@ -99,7 +103,7 @@ export default function QuizPanel({
         )}
 
         {quizResult === 'incorrect' && (
-          <p className="text-sm text-red-500">
+          <p className="text-sm md:text-base text-red-400 font-medium">
             Try again! (Hint: Look carefully at the attention weights in the image)
           </p>
         )}

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 export default {
   darkMode: ["class"],
@@ -52,11 +53,37 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Cinematic Glass custom colors
+        obsidian: {
+          DEFAULT: '#0f1015',
+          light: '#1a1b23',
+          dark: '#050507',
+        },
+        user: {
+          DEFAULT: '#F55DA8',
+          light: '#ff8dc7',
+          dark: '#d93d8a',
+        },
+        topic: {
+          DEFAULT: '#1DE3D4',
+          light: '#5ff0e4',
+          dark: '#00c7b5',
+        },
+        glass: {
+          light: 'rgba(255, 255, 255, 0.05)',
+          medium: 'rgba(255, 255, 255, 0.1)',
+          dark: 'rgba(0, 0, 0, 0.2)',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'neon-user': '0 0 10px rgba(245, 93, 168, 0.5), 0 0 20px rgba(245, 93, 168, 0.3)',
+        'neon-topic': '0 0 10px rgba(29, 227, 212, 0.5), 0 0 20px rgba(29, 227, 212, 0.3)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
       },
       keyframes: {
         "accordion-down": {
@@ -67,12 +94,34 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
+        'slide-in': {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+        'slide-in': 'slide-in 0.3s ease-out',
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(function({ addUtilities }) {
+      addUtilities({
+        '.text-glow-user': {
+          textShadow: '0 0 10px rgba(245, 93, 168, 0.8)',
+        },
+        '.text-glow-topic': {
+          textShadow: '0 0 10px rgba(29, 227, 212, 0.8)',
+        },
+      })
+    })
+  ],
 } satisfies Config;
