@@ -101,5 +101,45 @@
       "text": "Cargo Ships",
       "is_correct": false
     }
-  ]
+  ],
+  "why_text": "Look at the tactical display—the space station has the brightest focus indicator with 70% scanner allocation. This is your mission-critical target. Just as the captain must prioritize the docking objective over distant objects, the attention mechanism learns to focus computational resources on the most relevant tokens. The space station's high priority ensures your ship gets the detailed navigation data needed for safe docking, while less critical objects receive proportionally less processing power.",
+  "why_imageUrl": "/images/captain_attention_zoom.png",
+  "error_states": [
+    {
+      "wrong_option_id": "a",
+      "misconception_title": "Distance vs Relevance Error",
+      "wrong_connection_visual": "/images/captain_attention_error_nebula.png",
+      "correct_connection_visual": "/images/captain_attention_correct.png",
+      "explanation_text": "The DISTANT NEBULA is beautiful but irrelevant (0% priority). Your mission requires focusing on the SPACE STATION (70% priority). Attention mechanisms similarly ignore distant, low-relevance tokens to focus computational resources on what matters.",
+      "wrong_label": "YOUR CHOICE: DISTANT NEBULA (0%)",
+      "correct_label": "CORRECT: SPACE STATION (70%)"
+    },
+    {
+      "wrong_option_id": "b",
+      "misconception_title": "Secondary vs Primary Target",
+      "wrong_connection_visual": "/images/captain_attention_error_satellites.png",
+      "correct_connection_visual": "/images/captain_attention_correct.png",
+      "explanation_text": "DEFENSE SATELLITES require monitoring (10% priority), but the SPACE STATION is your primary objective (70% priority). Transformers learn to distinguish between secondary context and primary targets for output generation.",
+      "wrong_label": "YOUR CHOICE: DEFENSE SATELLITES (10%)",
+      "correct_label": "CORRECT: SPACE STATION (70%)"
+    },
+    {
+      "wrong_option_id": "d",
+      "misconception_title": "Moderate vs Critical Priority",
+      "wrong_connection_visual": "/images/captain_attention_error_cargo.png",
+      "correct_connection_visual": "/images/captain_attention_correct.png",
+      "explanation_text": "CARGO SHIPS have moderate importance (20% priority) for collision avoidance, but the SPACE STATION is mission-critical (70% priority). Attention weights reflect this hierarchy—higher weights for more relevant information.",
+      "wrong_label": "YOUR CHOICE: CARGO SHIPS (20%)",
+      "correct_label": "CORRECT: SPACE STATION (70%)"
+    }
+  ],
+  "fallback_error": {
+    "wrong_option_id": "fallback",
+    "misconception_title": "Common Navigation Error",
+    "wrong_connection_visual": "/images/generic_wrong.png",
+    "correct_connection_visual": "/images/captain_attention_correct.png",
+    "explanation_text": "This object doesn't have the highest scanner priority. Look for the brightest focus indicator or highest percentage allocation in the tactical display.",
+    "wrong_label": "INCORRECT TARGET",
+    "correct_label": "CORRECT: SPACE STATION (70%)"
+  }
 }
