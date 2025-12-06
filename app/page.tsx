@@ -119,11 +119,11 @@ export default function Home() {
   const alternatePersona = metaphorData?.persona === 'Chef' ? 'Starship Captain' : 'Chef'
 
   return (
-    <main className="min-h-screen bg-background py-12 px-4">
+    <main className="min-h-screen py-12 px-4">
       <div className="container mx-auto space-y-8">
         <header className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Dual Class</h1>
-          <p className="text-lg text-muted-foreground">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Dual Class</h1>
+          <p className="text-lg md:text-xl text-white/70">
             Learn complex concepts through personalized metaphors powered by Gemini
           </p>
         </header>
@@ -155,7 +155,10 @@ export default function Home() {
                   size="lg"
                   onClick={handleContextSwitch}
                   disabled={isLoading || isSwitching}
+                  className="glass-panel hover:shadow-neon-user transition-all duration-300
+                             text-white font-semibold px-8 border-white/20 hover:border-user"
                 >
+                  <span className="emoji-icon mr-2">🔄</span>
                   Switch to {alternatePersona}
                 </Button>
               </div>
