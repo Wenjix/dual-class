@@ -1,0 +1,11 @@
+{
+  "persona": "Starship Captain",
+  "concept": "Transformer Attention Mechanism",
+  "metaphor_logic": "On a starship bridge, attention is like how the captain focuses on the most critical threat or opportunity from all sensor data. The tactical AI highlights the enemy cruiser with 85% attention while background asteroids get only 2%, optimizing crew response time.",
+  "explanation_text": "Picture yourself as a starship captain on the bridge. Your tactical display shows dozens of ships, asteroids, and signals—but you can't focus on everything at once. The attention mechanism in your tactical AI works like this: it scans all contacts and calculates threat/opportunity weights. Enemy cruiser approaching: 85% attention. Friendly convoy: 10%. Distant asteroids: 2%. Background radiation: 0%. Your crew focuses computational resources on what matters. This is transformer attention: for each decision point, it calculates which inputs deserve focus, creating a dynamic priority map that shifts as context changes.",
+  "imageUrl": "/images/captain_attention.png",
+  "visual_style": "Starship bridge tactical display with attention beams highlighting priority targets",
+  "quiz_question": "Look at the tactical display. Which vessel has the highest attention priority from your ship?",
+  "quiz_answer": "Enemy Cruiser",
+  "quiz_explanation": "The attention mechanism highlights the most relevant threat, just like how the tactical AI prioritizes the enemy cruiser above all other contacts on the sensor grid."
+}

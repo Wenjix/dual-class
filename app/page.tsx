@@ -1,0 +1,168 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import InputForm from "./components/InputForm"
+import MetaphorCard from "./components/MetaphorCard"
+import QuizPanel from "./components/QuizPanel"
+import { Button } from "@/components/ui/button"
+
+interface MetaphorResponse {
+  persona: string
+  concept: string
+  metaphor_logic: string
+  explanation_text: string
+  imageUrl: string
+  visual_style: string
+  quiz_question: string
+  quiz_answer: string
+  quiz_explanation: string
+}
+
+export default function Home() {
+  const [concept, setConcept] = useState("")
+  const [persona, setPersona] = useState("")
+  const [metaphorData, setMetaphorData] = useState<MetaphorResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSwitching, setIsSwitching] = useState(false)
+  const [quizResult, setQuizResult] = useState<'correct' | 'incorrect' | null>(null)
+
+  // Pre-load cached responses for context switching
+  const [chefData, setChefData] = useState<MetaphorResponse | null>(null)
+  const [captainData, setCaptainData] = useState<MetaphorResponse | null>(null)
+
+  // Load cached data on mount
+  useEffect(() => {
+    async function loadCachedData() {
+      try {
+        const [chefRes, captainRes] = await Promise.all([
+          fetch('/data/chef_response.json'),
+          fetch('/data/captain_response.json'),
+        ])
+        const chef = await chefRes.json()
+        const captain = await captainRes.json()
+
+        setChefData(chef)
+        setCaptainData(captain)
+
+        // Display Chef data initially for demo
+        setMetaphorData(chef)
+        setConcept(chef.concept)
+        setPersona(chef.persona)
+      } catch (error) {
+        console.error('Error loading cached data:', error)
+      }
+    }
+
+    loadCachedData()
+  }, [])
+
+  const handleGenerate = async (data: { concept: string; persona: string }) => {
+    setIsLoading(true)
+    setQuizResult(null)
+    setConcept(data.concept)
+    setPersona(data.persona)
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate explanation')
+      }
+
+      const result = await response.json()
+      setMetaphorData(result)
+
+      // Update cached data if it's a demo persona
+      if (result.persona === 'Chef') {
+        setChefData(result)
+      } else if (result.persona === 'Starship Captain') {
+        setCaptainData(result)
+      }
+    } catch (error) {
+      console.error('Error generating explanation:', error)
+      alert('Failed to generate explanation. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleQuizSubmit = (isCorrect: boolean) => {
+    setQuizResult(isCorrect ? 'correct' : 'incorrect')
+
+    if (!isCorrect) {
+      // Reset after animation completes
+      setTimeout(() => setQuizResult(null), 500)
+    }
+  }
+
+  const handleContextSwitch = () => {
+    if (!metaphorData || !chefData || !captainData) return
+
+    setIsSwitching(true)
+
+    setTimeout(() => {
+      const newData = metaphorData.persona === 'Chef' ? captainData : chefData
+      setMetaphorData(newData)
+      setConcept(newData.concept)
+      setPersona(newData.persona)
+      setQuizResult(null)
+      setIsSwitching(false)
+    }, 200)
+  }
+
+  const alternatePersona = metaphorData?.persona === 'Chef' ? 'Starship Captain' : 'Chef'
+
+  return (
+    <main className="min-h-screen bg-background py-12 px-4">
+      <div className="container mx-auto space-y-8">
+        <header className="text-center space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight">Dual Class</h1>
+          <p className="text-lg text-muted-foreground">
+            Learn complex concepts through personalized metaphors powered by Gemini
+          </p>
+        </header>
+
+        <InputForm onSubmit={handleGenerate} isLoading={isLoading} />
+
+        {metaphorData && (
+          <>
+            <MetaphorCard
+              persona={metaphorData.persona}
+              concept={metaphorData.concept}
+              explanation_text={metaphorData.explanation_text}
+              imageUrl={metaphorData.imageUrl}
+              isSwitching={isSwitching}
+            />
+
+            <QuizPanel
+              question={metaphorData.quiz_question}
+              correctAnswer={metaphorData.quiz_answer}
+              onAnswerSubmit={handleQuizSubmit}
+              quizResult={quizResult}
+              quizExplanation={metaphorData.quiz_explanation}
+            />
+
+            {chefData && captainData && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleContextSwitch}
+                  disabled={isLoading || isSwitching}
+                >
+                  Switch to {alternatePersona}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </main>
+  )
+}
