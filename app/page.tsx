@@ -33,6 +33,16 @@ interface QuizOption {
   is_correct: boolean
 }
 
+interface ErrorState {
+  wrong_option_id: string
+  misconception_title: string
+  wrong_connection_visual: string
+  correct_connection_visual: string
+  explanation_text: string
+  wrong_label: string
+  correct_label: string
+}
+
 interface MetaphorResponse {
   persona: string
   concept: string
@@ -47,6 +57,10 @@ interface MetaphorResponse {
   mapping_pairs: MappingPair[]
   visual_callouts: VisualCallout[]
   quiz_options: QuizOption[]
+  why_text?: string
+  why_imageUrl?: string
+  error_states?: ErrorState[]
+  fallback_error?: ErrorState
 }
 
 // Helper function to map persona to emoji
@@ -221,6 +235,10 @@ export default function Home() {
               question={metaphorData.quiz_question}
               options={metaphorData.quiz_options}
               explanation={metaphorData.quiz_explanation}
+              whyText={metaphorData.why_text}
+              whyImageUrl={metaphorData.why_imageUrl}
+              errorStates={metaphorData.error_states}
+              fallbackError={metaphorData.fallback_error}
             />
 
             {chefData && captainData && (

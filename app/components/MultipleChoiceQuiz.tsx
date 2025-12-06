@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import ErrorMirror from "./ErrorMirror"
 
 interface QuizOption {
   id: string
@@ -10,25 +11,66 @@ interface QuizOption {
   is_correct: boolean
 }
 
+interface ErrorState {
+  wrong_option_id: string
+  misconception_title: string
+  wrong_connection_visual: string
+  correct_connection_visual: string
+  explanation_text: string
+  wrong_label: string
+  correct_label: string
+}
+
 interface MultipleChoiceQuizProps {
   question: string
   options: QuizOption[]
   explanation: string
+  whyText?: string
+  whyImageUrl?: string
+  errorStates?: ErrorState[]
+  fallbackError?: ErrorState
 }
 
 export default function MultipleChoiceQuiz({
   question,
   options,
   explanation,
+  whyText,
+  whyImageUrl,
+  errorStates,
+  fallbackError,
 }: MultipleChoiceQuizProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
+  const [showWhy, setShowWhy] = useState(false)
+  const [showErrorMirror, setShowErrorMirror] = useState(false)
+  const [currentErrorState, setCurrentErrorState] = useState<ErrorState | null>(null)
 
   const handleOptionClick = (optionId: string) => {
     if (showResult) return // Prevent re-selection after answer
 
     setSelectedOption(optionId)
     setShowResult(true)
+    setShowWhy(false) // Reset "Why?" state on new answer
+    setShowErrorMirror(false) // Reset Error Mirror on new answer
+  }
+
+  const handleWhyClick = () => {
+    setShowWhy(!showWhy)
+    if (!showWhy) {
+      setShowErrorMirror(false) // Hide Error Mirror when showing Why
+    }
+  }
+
+  const handleShowErrorMirror = () => {
+    if (!selectedOption || !errorStates) return
+
+    // Find error state for selected wrong option
+    const errorState = errorStates.find(e => e.wrong_option_id === selectedOption)
+
+    setCurrentErrorState(errorState || fallbackError || null)
+    setShowErrorMirror(true)
+    setShowWhy(false) // Hide Why when showing Error Mirror
   }
 
   const getOptionClass = (option: QuizOption) => {
@@ -98,12 +140,75 @@ export default function MultipleChoiceQuiz({
               <>
                 <Badge className="bg-red-500/30 text-red-100 border-red-500/50
                                   text-base px-4 py-1">
-                  ✗ Incorrect
+                  ✗ Not quite
                 </Badge>
                 <p className="text-sm md:text-base text-red-400 font-medium">
                   Try again! Look carefully at the visual elements in the image.
                 </p>
+
+                {/* "See what went wrong" button - NEW */}
+                {(errorStates || fallbackError) && !showErrorMirror && (
+                  <button
+                    onClick={handleShowErrorMirror}
+                    className="mt-3 inline-flex items-center gap-2 px-5 py-3 rounded-lg
+                               bg-red-500/20 border-2 border-red-500/40 hover:bg-red-500/30
+                               hover:border-red-500 text-red-100 hover:text-white font-semibold
+                               transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20
+                               focus:outline-none focus:ring-2 focus:ring-red-500"
+                  >
+                    <span className="text-lg">🪞</span>
+                    <span>See what went wrong</span>
+                  </button>
+                )}
+
+                {/* Error Mirror Display */}
+                {showErrorMirror && currentErrorState && (
+                  <ErrorMirror errorState={currentErrorState} />
+                )}
               </>
+            )}
+
+            {/* "Why?" Button - Show when quiz has why content */}
+            {(whyText || whyImageUrl) && (
+              <div className="pt-2">
+                <button
+                  onClick={handleWhyClick}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+                             bg-white/5 border border-white/20 hover:bg-white/10 hover:border-white/40
+                             text-white/80 hover:text-white font-medium text-sm
+                             transition-all duration-300 hover:shadow-lg hover:shadow-white/10
+                             focus:outline-none focus:ring-2 focus:ring-white/40"
+                >
+                  <span className="text-lg">🤔</span>
+                  <span>{showWhy ? 'Hide explanation' : 'Why?'}</span>
+                </button>
+
+                {/* "Why?" Explanation - Appears when button is clicked */}
+                {showWhy && (
+                  <div className="mt-4 space-y-4 animate-slide-in">
+                    {/* Visual Explanation Image */}
+                    {whyImageUrl && (
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20
+                                      shadow-xl shadow-white/5">
+                        <img
+                          src={whyImageUrl}
+                          alt="Visual explanation"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Text Explanation */}
+                    {whyText && (
+                      <div className="p-4 rounded-lg bg-white/5 border border-white/20">
+                        <p className="text-sm md:text-base text-white/80 leading-relaxed">
+                          {whyText}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}

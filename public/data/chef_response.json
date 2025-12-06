@@ -101,5 +101,45 @@
       "text": "Garlic Butter",
       "is_correct": false
     }
-  ]
+  ],
+  "why_text": "You see the brightest glow on the wine reduction pan. Attention weights work exactly like this—the model assigns the highest weight (80%) to the most relevant token when processing information. Just as the wine reduction has the strongest pairing connection to enhance the steak's flavor profile, the transformer's attention mechanism focuses computational resources on the tokens that matter most for generating accurate outputs.",
+  "why_imageUrl": "/images/chef_attention_zoom.svg",
+  "error_states": [
+    {
+      "wrong_option_id": "a",
+      "misconception_title": "Sweetness Bias",
+      "wrong_connection_visual": "/images/chef_attention_error_ketchup.svg",
+      "correct_connection_visual": "/images/chef_attention_correct.svg",
+      "explanation_text": "You focused on SWEETNESS. Chefs know STEAK pairs with UMAMI (WINE), not SUGAR (KETCHUP). Similarly, attention mechanisms learn which tokens provide semantic relevance, not just surface-level similarity.",
+      "wrong_label": "YOUR CHOICE: KETCHUP → STEAK",
+      "correct_label": "CORRECT: WINE → STEAK (80%)"
+    },
+    {
+      "wrong_option_id": "c",
+      "misconception_title": "Minor vs Major Pairing",
+      "wrong_connection_visual": "/images/chef_attention_error_rosemary.svg",
+      "correct_connection_visual": "/images/chef_attention_correct.svg",
+      "explanation_text": "ROSEMARY enhances the dish (5% weight), but WINE REDUCTION is the primary complement (80% weight). Attention weights prioritize STRONGEST relationships, not just any positive connection.",
+      "wrong_label": "YOUR CHOICE: ROSEMARY → STEAK (5%)",
+      "correct_label": "CORRECT: WINE → STEAK (80%)"
+    },
+    {
+      "wrong_option_id": "d",
+      "misconception_title": "Texture vs Flavor Priority",
+      "wrong_connection_visual": "/images/chef_attention_error_butter.svg",
+      "correct_connection_visual": "/images/chef_attention_correct.svg",
+      "explanation_text": "GARLIC BUTTER adds richness (15% weight), but the model learned WINE REDUCTION has the highest attention (80%). Like transformers, chefs prioritize the PRIMARY flavor relationship.",
+      "wrong_label": "YOUR CHOICE: GARLIC BUTTER → STEAK (15%)",
+      "correct_label": "CORRECT: WINE → STEAK (80%)"
+    }
+  ],
+  "fallback_error": {
+    "wrong_option_id": "fallback",
+    "misconception_title": "Common Misconception",
+    "wrong_connection_visual": "/images/generic_wrong.svg",
+    "correct_connection_visual": "/images/chef_attention_correct.svg",
+    "explanation_text": "This ingredient doesn't have the strongest attention weight. Look for the brightest glow or highest percentage in the diagram.",
+    "wrong_label": "INCORRECT PAIRING",
+    "correct_label": "CORRECT: WINE → STEAK (80%)"
+  }
 }
