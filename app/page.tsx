@@ -3,8 +3,34 @@
 import { useState, useEffect } from "react"
 import InputForm from "./components/InputForm"
 import MetaphorCard from "./components/MetaphorCard"
-import QuizPanel from "./components/QuizPanel"
+import MultipleChoiceQuiz from "./components/MultipleChoiceQuiz"
 import { Button } from "@/components/ui/button"
+
+interface LessonStep {
+  step_number: number
+  title: string
+  metaphor_text: string
+  literal_text: string
+  image_callout: number
+}
+
+interface MappingPair {
+  concept_term: string
+  metaphor_term: string
+  note?: string
+}
+
+interface VisualCallout {
+  id: number
+  position: string
+  label: string
+}
+
+interface QuizOption {
+  id: string
+  text: string
+  is_correct: boolean
+}
 
 interface MetaphorResponse {
   persona: string
@@ -16,6 +42,10 @@ interface MetaphorResponse {
   quiz_question: string
   quiz_answer: string
   quiz_explanation: string
+  lesson_steps: LessonStep[]
+  mapping_pairs: MappingPair[]
+  visual_callouts: VisualCallout[]
+  quiz_options: QuizOption[]
 }
 
 export default function Home() {
@@ -25,6 +55,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSwitching, setIsSwitching] = useState(false)
   const [quizResult, setQuizResult] = useState<'correct' | 'incorrect' | null>(null)
+
+  // New state for lesson step mode and callout visibility
+  const [lessonStepMode, setLessonStepMode] = useState<"fixed" | "dynamic">("dynamic")
+  const [showCallouts, setShowCallouts] = useState(true)
 
   // Pre-load cached responses for context switching
   const [chefData, setChefData] = useState<MetaphorResponse | null>(null)
@@ -56,7 +90,7 @@ export default function Home() {
     loadCachedData()
   }, [])
 
-  const handleGenerate = async (data: { concept: string; persona: string }) => {
+  const handleGenerate = async (data: { concept: string; persona: string; lessonStepMode: "fixed" | "dynamic" }) => {
     setIsLoading(true)
     setQuizResult(null)
     setConcept(data.concept)
@@ -128,7 +162,12 @@ export default function Home() {
           </p>
         </header>
 
-        <InputForm onSubmit={handleGenerate} isLoading={isLoading} />
+        <InputForm
+          onSubmit={handleGenerate}
+          isLoading={isLoading}
+          lessonStepMode={lessonStepMode}
+          onLessonStepModeChange={setLessonStepMode}
+        />
 
         {metaphorData && (
           <>
@@ -138,14 +177,17 @@ export default function Home() {
               explanation_text={metaphorData.explanation_text}
               imageUrl={metaphorData.imageUrl}
               isSwitching={isSwitching}
+              lessonSteps={metaphorData.lesson_steps}
+              mappingPairs={metaphorData.mapping_pairs}
+              visualCallouts={metaphorData.visual_callouts}
+              showCallouts={showCallouts}
+              onToggleCallouts={() => setShowCallouts(!showCallouts)}
             />
 
-            <QuizPanel
+            <MultipleChoiceQuiz
               question={metaphorData.quiz_question}
-              correctAnswer={metaphorData.quiz_answer}
-              onAnswerSubmit={handleQuizSubmit}
-              quizResult={quizResult}
-              quizExplanation={metaphorData.quiz_explanation}
+              options={metaphorData.quiz_options}
+              explanation={metaphorData.quiz_explanation}
             />
 
             {chefData && captainData && (

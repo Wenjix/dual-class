@@ -1,10 +1,31 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import { X, Info } from "lucide-react"
+import { X, Info, Eye, EyeOff } from "lucide-react"
+import LessonTrack from "./LessonTrack"
+import RosettaStone from "./RosettaStone"
+import CalloutBadge from "./CalloutBadge"
+
+interface LessonStep {
+  step_number: number
+  title: string
+  metaphor_text: string
+  literal_text: string
+  image_callout: number
+}
+
+interface MappingPair {
+  concept_term: string
+  metaphor_term: string
+  note?: string
+}
+
+interface VisualCallout {
+  id: number
+  position: string
+  label: string
+}
 
 interface MetaphorCardProps {
   persona: string
@@ -12,6 +33,11 @@ interface MetaphorCardProps {
   explanation_text: string
   imageUrl: string
   isSwitching: boolean
+  lessonSteps: LessonStep[]
+  mappingPairs: MappingPair[]
+  visualCallouts: VisualCallout[]
+  showCallouts: boolean
+  onToggleCallouts: () => void
 }
 
 // Helper function to map persona to emoji
@@ -46,13 +72,18 @@ export default function MetaphorCard({
   explanation_text,
   imageUrl,
   isSwitching,
+  lessonSteps,
+  mappingPairs,
+  visualCallouts,
+  showCallouts,
+  onToggleCallouts,
 }: MetaphorCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  // Split explanation into two parts for dual-side display
-  const paragraphs = explanation_text.split('\n\n').filter(p => p.trim())
-  const leftText = paragraphs[0] || explanation_text.substring(0, 200)
-  const rightText = paragraphs[1] || paragraphs[2] || explanation_text.substring(200, 400) || "Understanding the technical concept through real-world metaphors."
+  // Split explanation into two parts for dual-side display (fallback for old format)
+  const paragraphs = explanation_text?.split('\n\n').filter(p => p.trim()) || []
+  const leftText = paragraphs[0] || ""
+  const rightText = paragraphs[1] || paragraphs[2] || ""
 
   return (
     <div className={`relative w-full aspect-video rounded-3xl overflow-hidden border border-white/10
@@ -78,11 +109,34 @@ export default function MetaphorCard({
           <span className="emoji-icon mr-1">{getPersonaEmoji(persona)}</span>
           {persona}
         </Badge>
-        <Badge className="bg-topic/20 backdrop-blur-md border-topic/40 text-topic text-xs md:text-sm px-3 py-1">
-          {concept}
-          <span className="emoji-icon ml-1">{getConceptEmoji(concept)}</span>
-        </Badge>
+        <div className="flex gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleCallouts()
+            }}
+            className="pointer-events-auto glass-panel p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label={showCallouts ? "Hide callouts" : "Show callouts"}
+          >
+            {showCallouts ? <Eye className="w-4 h-4 text-topic" /> : <EyeOff className="w-4 h-4 text-white/40" />}
+          </button>
+          <Badge className="bg-topic/20 backdrop-blur-md border-topic/40 text-topic text-xs md:text-sm px-3 py-1">
+            {concept}
+            <span className="emoji-icon ml-1">{getConceptEmoji(concept)}</span>
+          </Badge>
+        </div>
       </div>
+
+      {/* Callout Badges */}
+      {visualCallouts && visualCallouts.map((callout) => (
+        <CalloutBadge
+          key={callout.id}
+          number={callout.id}
+          position={callout.position}
+          label={callout.label}
+          visible={showCallouts}
+        />
+      ))}
 
       {/* Hover Indicator - Shows when NOT expanded */}
       {!isExpanded && (
@@ -130,50 +184,61 @@ export default function MetaphorCard({
             </div>
           </div>
 
-          {/* Content - Dual Column */}
+          {/* Content - Lesson Track + Rosetta Stone */}
           <div className="flex-1 overflow-y-auto px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
-
-              {/* Left Side: Persona World */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="h-1 w-12 bg-gradient-to-r from-user to-transparent rounded-full"></div>
-                  <h4 className="text-user/80 text-sm font-bold tracking-widest uppercase">
-                    Your World
-                  </h4>
-                </div>
-                <p className="text-white/90 text-base md:text-lg leading-relaxed">
-                  {leftText}
-                </p>
-              </div>
-
-              {/* Right Side: Tech World */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-3 justify-end">
-                  <h4 className="text-topic/80 text-sm font-bold tracking-widest uppercase">
-                    Technical Concept
-                  </h4>
-                  <div className="h-1 w-12 bg-gradient-to-l from-topic to-transparent rounded-full"></div>
-                </div>
-                <p className="text-white/90 text-base md:text-lg leading-relaxed text-right">
-                  {rightText}
-                </p>
-              </div>
-
-            </div>
-
-            {/* Full Text if more paragraphs exist */}
-            {paragraphs.length > 2 && (
-              <div className="mt-8 pt-6 border-t border-white/10 max-w-5xl mx-auto">
-                <div className="prose prose-invert max-w-none">
-                  {paragraphs.slice(2).map((para, idx) => (
-                    <p key={idx} className="text-white/80 text-base leading-relaxed mb-4">
-                      {para}
+            <div className="max-w-6xl mx-auto space-y-8">
+              {/* Show new structured content if available */}
+              {lessonSteps && lessonSteps.length > 0 ? (
+                <>
+                  <LessonTrack lessonSteps={lessonSteps} />
+                  {mappingPairs && mappingPairs.length > 0 && (
+                    <RosettaStone mappingPairs={mappingPairs} />
+                  )}
+                </>
+              ) : (
+                /* Fallback to old dual-column layout if new data isn't available */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                  {/* Left Side: Persona World */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="h-1 w-12 bg-gradient-to-r from-user to-transparent rounded-full"></div>
+                      <h4 className="text-user/80 text-sm font-bold tracking-widest uppercase">
+                        Your World
+                      </h4>
+                    </div>
+                    <p className="text-white/90 text-base md:text-lg leading-relaxed">
+                      {leftText}
                     </p>
-                  ))}
+                  </div>
+
+                  {/* Right Side: Tech World */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3 justify-end">
+                      <h4 className="text-topic/80 text-sm font-bold tracking-widest uppercase">
+                        Technical Concept
+                      </h4>
+                      <div className="h-1 w-12 bg-gradient-to-l from-topic to-transparent rounded-full"></div>
+                    </div>
+                    <p className="text-white/90 text-base md:text-lg leading-relaxed text-right">
+                      {rightText}
+                    </p>
+                  </div>
+
+                  {/* Full Text if more paragraphs exist */}
+                  {paragraphs.length > 2 && (
+                    <div className="col-span-full mt-8 pt-6 border-t border-white/10">
+                      <div className="prose prose-invert max-w-none">
+                        {paragraphs.slice(2).map((para, idx) => (
+                          <p key={idx} className="text-white/80 text-base leading-relaxed mb-4">
+                            {para}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -7,7 +7,7 @@ const DEMO_PERSONAS = ['chef', 'starship captain', 'captain']
 
 export async function POST(req: NextRequest) {
   try {
-    const { concept, persona } = await req.json()
+    const { concept, persona, lessonStepMode = "dynamic" } = await req.json()
 
     if (!concept || !persona) {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     // LIVE MODE: Call Gemini API
     try {
-      const metaphorResponse = await generateMetaphor(concept, persona)
+      const metaphorResponse = await generateMetaphor(concept, persona, lessonStepMode)
       const metaphorData = JSON.parse(metaphorResponse)
 
       // Try to generate image

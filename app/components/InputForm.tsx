@@ -6,18 +6,20 @@ import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
 
 interface InputFormProps {
-  onSubmit: (data: { concept: string; persona: string }) => void
+  onSubmit: (data: { concept: string; persona: string; lessonStepMode: "fixed" | "dynamic" }) => void
   isLoading: boolean
+  lessonStepMode: "fixed" | "dynamic"
+  onLessonStepModeChange: (mode: "fixed" | "dynamic") => void
 }
 
-export default function InputForm({ onSubmit, isLoading }: InputFormProps) {
+export default function InputForm({ onSubmit, isLoading, lessonStepMode, onLessonStepModeChange }: InputFormProps) {
   const [concept, setConcept] = useState("")
   const [persona, setPersona] = useState("")
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (concept.trim() && persona.trim()) {
-      onSubmit({ concept: concept.trim(), persona: persona.trim() })
+      onSubmit({ concept: concept.trim(), persona: persona.trim(), lessonStepMode })
     }
   }
 
@@ -51,6 +53,35 @@ export default function InputForm({ onSubmit, isLoading }: InputFormProps) {
                      h-auto py-1 md:py-2 font-medium"
           placeholder="profession"
         />
+      </div>
+
+      {/* Lesson Step Mode Toggle */}
+      <div className="flex items-center justify-center gap-3 mb-6">
+        <span className="text-white/60 text-sm md:text-base font-medium">Learning Depth:</span>
+        <div className="flex items-center gap-2 glass-panel px-4 py-2 rounded-lg border border-white/10">
+          <button
+            type="button"
+            onClick={() => onLessonStepModeChange("fixed")}
+            className={`px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-all duration-200 ${
+              lessonStepMode === "fixed"
+                ? "bg-topic text-white shadow-neon-topic"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            Fixed (3 steps)
+          </button>
+          <button
+            type="button"
+            onClick={() => onLessonStepModeChange("dynamic")}
+            className={`px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-all duration-200 ${
+              lessonStepMode === "dynamic"
+                ? "bg-topic text-white shadow-neon-topic"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            Dynamic (3-5 steps)
+          </button>
+        </div>
       </div>
 
       <Button
