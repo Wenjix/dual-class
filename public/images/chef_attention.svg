@@ -23,7 +23,7 @@
     <!-- Rosemary -->
     <circle cx="300" cy="724" r="50" fill="#2d5016" stroke="#000" stroke-width="3"/>
     <text x="300" y="732" font-family="Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle">Rosemary</text>
-    <line x1="340" y1="680" x2="450" y1="590" stroke="#2d5016" stroke-width="2" opacity="0.4"/>
+    <line x1="340" y1="680" x2="450" y2="590" stroke="#2d5016" stroke-width="2" opacity="0.4"/>
     <text x="400" y="630" font-family="Arial, sans-serif" font-size="16" fill="#2d5016" font-weight="bold">5%</text>
 
     <!-- Ketchup (no connection) -->

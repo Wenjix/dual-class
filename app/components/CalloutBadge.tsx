@@ -7,17 +7,17 @@ interface CalloutBadgeProps {
   visible?: boolean
 }
 
-// Map position strings to Tailwind classes for 9-grid positioning
+// Map position strings to Tailwind classes - positioned to avoid header badges
 const positionClasses: Record<string, string> = {
-  'top-left': 'absolute top-4 left-4',
-  'top-center': 'absolute top-4 left-1/2 -translate-x-1/2',
-  'top-right': 'absolute top-4 right-4',
-  'center-left': 'absolute top-1/2 left-4 -translate-y-1/2',
-  'center': 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-  'center-right': 'absolute top-1/2 right-4 -translate-y-1/2',
-  'bottom-left': 'absolute bottom-4 left-4',
-  'bottom-center': 'absolute bottom-4 left-1/2 -translate-x-1/2',
-  'bottom-right': 'absolute bottom-4 right-4',
+  'top-left': 'absolute top-[20%] left-[8%]',
+  'top-center': 'absolute top-[20%] left-1/2 -translate-x-1/2',
+  'top-right': 'absolute top-[20%] right-[8%]',
+  'center-left': 'absolute top-[45%] left-[8%]',
+  'center': 'absolute top-[45%] left-1/2 -translate-x-1/2',
+  'center-right': 'absolute top-[45%] right-[8%]',
+  'bottom-left': 'absolute bottom-[15%] left-[8%]',
+  'bottom-center': 'absolute bottom-[15%] left-1/2 -translate-x-1/2',
+  'bottom-right': 'absolute bottom-[15%] right-[8%]',
 }
 
 // Convert numbers to circled Unicode characters

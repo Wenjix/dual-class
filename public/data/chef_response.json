@@ -3,7 +3,7 @@
   "concept": "Transformer Attention Mechanism",
   "metaphor_logic": "In cooking, attention is like how a chef prioritizes ingredients based on what pairs best with the main dish. Just as a chef knows wine reduction enhances steak more than ketchup, the attention mechanism learns which input tokens are most relevant to each output.",
   "explanation_text": "Imagine you're a chef preparing a signature steak dish. The attention mechanism works like your instinct to pair ingredients. You have dozens of options—wines, sauces, herbs, sides. But your attention immediately focuses on what complements steak: wine reduction, garlic butter, rosemary. You assign 'attention weights'—wine reduction gets 80%, garlic butter 15%, rosemary 5%. Ketchup gets 0%. This is exactly how transformer attention works: for each word it generates, it scans all input words and assigns weights based on relevance, focusing computational resources where they matter most.",
-  "imageUrl": "/images/chef_attention.svg",
+  "imageUrl": "/images/chef_attention.png",
   "visual_style": "Molecular gastronomy diagram showing ingredient pairing weights with numbered callouts",
   "quiz_question": "In the image, which ingredient has the highest attention weight to the steak?",
   "quiz_answer": "Wine Reduction",

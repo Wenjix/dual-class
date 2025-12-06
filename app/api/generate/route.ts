@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       const metaphorData = JSON.parse(metaphorResponse)
 
       // Try to generate image
-      let imageUrl = '/images/chef_attention.svg' // fallback
+      let imageUrl = '/images/chef_attention.png' // fallback
       try {
         imageUrl = await generateImage(metaphorData.image_prompt)
       } catch (imgError) {
