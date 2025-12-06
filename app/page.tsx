@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import InputForm from "./components/InputForm"
+import LearningTimeline from "./components/LearningTimeline"
 import MetaphorCard from "./components/MetaphorCard"
 import MultipleChoiceQuiz from "./components/MultipleChoiceQuiz"
 import { Button } from "@/components/ui/button"
@@ -48,6 +49,32 @@ interface MetaphorResponse {
   quiz_options: QuizOption[]
 }
 
+// Helper function to map persona to emoji
+const getPersonaEmoji = (persona: string): string => {
+  const normalized = persona.toLowerCase()
+  if (normalized.includes('chef') || normalized.includes('cook') || normalized.includes('baker')) return '👨‍🍳'
+  if (normalized.includes('captain') || normalized.includes('pilot') || normalized.includes('astronaut')) return '🧑‍✈️'
+  if (normalized.includes('detective') || normalized.includes('investigator')) return '🕵️'
+  if (normalized.includes('gamer') || normalized.includes('game')) return '🎮'
+  if (normalized.includes('musician') || normalized.includes('music') || normalized.includes('guitar')) return '🎸'
+  if (normalized.includes('surfer') || normalized.includes('surf')) return '🏄'
+  if (normalized.includes('firefighter') || normalized.includes('fire')) return '🚒'
+  if (normalized.includes('teacher') || normalized.includes('professor')) return '👨‍🏫'
+  return '👤'
+}
+
+// Helper to get concept emoji
+const getConceptEmoji = (concept: string): string => {
+  const normalized = concept.toLowerCase()
+  if (normalized.includes('ai') || normalized.includes('neural') || normalized.includes('attention')) return '🧠'
+  if (normalized.includes('docker') || normalized.includes('k8s') || normalized.includes('kubernetes') || normalized.includes('container')) return '🐳'
+  if (normalized.includes('blockchain') || normalized.includes('crypto')) return '🔗'
+  if (normalized.includes('security') || normalized.includes('encryption')) return '🛡️'
+  if (normalized.includes('database') || normalized.includes('sql')) return '💾'
+  if (normalized.includes('network') || normalized.includes('api')) return '🌐'
+  return '💻'
+}
+
 export default function Home() {
   const [concept, setConcept] = useState("")
   const [persona, setPersona] = useState("")
@@ -56,9 +83,8 @@ export default function Home() {
   const [isSwitching, setIsSwitching] = useState(false)
   const [quizResult, setQuizResult] = useState<'correct' | 'incorrect' | null>(null)
 
-  // New state for lesson step mode and callout visibility
+  // State for lesson step mode
   const [lessonStepMode, setLessonStepMode] = useState<"fixed" | "dynamic">("dynamic")
-  const [showCallouts, setShowCallouts] = useState(true)
 
   // Pre-load cached responses for context switching
   const [chefData, setChefData] = useState<MetaphorResponse | null>(null)
@@ -171,17 +197,24 @@ export default function Home() {
 
         {metaphorData && (
           <>
+            {/* Learning Timeline - Above the image */}
+            {metaphorData.lesson_steps && metaphorData.lesson_steps.length > 0 && (
+              <LearningTimeline
+                persona={metaphorData.persona}
+                concept={metaphorData.concept}
+                lessonSteps={metaphorData.lesson_steps}
+                personaEmoji={getPersonaEmoji(metaphorData.persona)}
+                conceptEmoji={getConceptEmoji(metaphorData.concept)}
+              />
+            )}
+
             <MetaphorCard
               persona={metaphorData.persona}
               concept={metaphorData.concept}
-              explanation_text={metaphorData.explanation_text}
               imageUrl={metaphorData.imageUrl}
               isSwitching={isSwitching}
-              lessonSteps={metaphorData.lesson_steps}
               mappingPairs={metaphorData.mapping_pairs}
               visualCallouts={metaphorData.visual_callouts}
-              showCallouts={showCallouts}
-              onToggleCallouts={() => setShowCallouts(!showCallouts)}
             />
 
             <MultipleChoiceQuiz
