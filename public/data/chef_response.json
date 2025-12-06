@@ -3,9 +3,103 @@
   "concept": "Transformer Attention Mechanism",
   "metaphor_logic": "In cooking, attention is like how a chef prioritizes ingredients based on what pairs best with the main dish. Just as a chef knows wine reduction enhances steak more than ketchup, the attention mechanism learns which input tokens are most relevant to each output.",
   "explanation_text": "Imagine you're a chef preparing a signature steak dish. The attention mechanism works like your instinct to pair ingredients. You have dozens of options—wines, sauces, herbs, sides. But your attention immediately focuses on what complements steak: wine reduction, garlic butter, rosemary. You assign 'attention weights'—wine reduction gets 80%, garlic butter 15%, rosemary 5%. Ketchup gets 0%. This is exactly how transformer attention works: for each word it generates, it scans all input words and assigns weights based on relevance, focusing computational resources where they matter most.",
-  "imageUrl": "/images/chef_attention.png",
-  "visual_style": "Molecular gastronomy diagram showing ingredient pairing weights",
-  "quiz_question": "Look at the image. Which ingredient has the highest attention weight to the steak?",
+  "imageUrl": "/images/chef_attention.svg",
+  "visual_style": "Molecular gastronomy diagram showing ingredient pairing weights with numbered callouts",
+  "quiz_question": "In the image, which ingredient has the highest attention weight to the steak?",
   "quiz_answer": "Wine Reduction",
-  "quiz_explanation": "Just like the attention mechanism assigns the highest weight to the most relevant token, the wine reduction has the strongest pairing connection to the steak in this culinary attention map."
+  "quiz_explanation": "Just like the attention mechanism assigns the highest weight to the most relevant token, the wine reduction has the strongest pairing connection (80%) to the steak in this culinary attention map.",
+  "lesson_steps": [
+    {
+      "step_number": 1,
+      "title": "Ingredient Relationships",
+      "metaphor_text": "When plating a steak, a chef doesn't treat all ingredients equally. Wine reduction is a natural partner—its acidity cuts through fat, its depth complements the char. Garlic butter adds richness. Rosemary provides aromatics. Ketchup? It would overpower everything. Each ingredient has a relationship strength with the steak.",
+      "literal_text": "In transformers, each token (word) has a relationship with every other token. The model computes similarity scores between tokens using query and key vectors. These scores determine which tokens should influence each other during processing. High scores mean strong relationships, low scores mean weak connections.",
+      "image_callout": 1
+    },
+    {
+      "step_number": 2,
+      "title": "Attention Weights",
+      "metaphor_text": "The chef assigns percentages: 80% wine reduction, 15% garlic butter, 5% rosemary, 0% ketchup. These weights guide how much of each ingredient influences the final dish. The chef's attention budget is 100%—distributed based on what creates the best flavor profile.",
+      "literal_text": "Attention weights are computed by softmax-normalizing the similarity scores. This creates a probability distribution that sums to 1.0. Tokens with high similarity get large weights (focusing attention), while irrelevant tokens get weights near zero. These weights determine how much each token contributes to the output.",
+      "image_callout": 2
+    },
+    {
+      "step_number": 3,
+      "title": "Multi-Head Attention",
+      "metaphor_text": "Imagine having multiple chefs, each with different expertise. One focuses on flavor pairing (wine + steak). Another on texture (butter smoothness). A third on aroma (rosemary fragrance). Each chef creates their own attention map, then they combine insights for the perfect dish.",
+      "literal_text": "Multi-head attention runs multiple attention operations in parallel, each with different learned parameters. One head might capture syntactic relationships, another semantic meaning, another positional patterns. The outputs are concatenated and linearly transformed, allowing the model to attend to information from different representation subspaces simultaneously.",
+      "image_callout": 3
+    }
+  ],
+  "mapping_pairs": [
+    {
+      "concept_term": "Token",
+      "metaphor_term": "Ingredient",
+      "note": "Each word/subword is like an individual ingredient that can be combined"
+    },
+    {
+      "concept_term": "Attention Weight",
+      "metaphor_term": "Pairing Strength",
+      "note": "The percentage that shows how well two items work together"
+    },
+    {
+      "concept_term": "Query Vector",
+      "metaphor_term": "Main Dish (Steak)",
+      "note": "The item you're trying to complement or build around"
+    },
+    {
+      "concept_term": "Key Vector",
+      "metaphor_term": "Ingredient Properties",
+      "note": "The characteristics that determine compatibility"
+    },
+    {
+      "concept_term": "Value Vector",
+      "metaphor_term": "Actual Flavor Contribution",
+      "note": "What the ingredient actually adds to the final taste"
+    },
+    {
+      "concept_term": "Multi-Head",
+      "metaphor_term": "Multiple Chef Experts",
+      "note": "Different specialists focusing on different aspects simultaneously"
+    }
+  ],
+  "visual_callouts": [
+    {
+      "id": 1,
+      "position": "top-left",
+      "label": "Ingredients/Tokens"
+    },
+    {
+      "id": 2,
+      "position": "center",
+      "label": "Attention Weights"
+    },
+    {
+      "id": 3,
+      "position": "bottom-right",
+      "label": "Multi-Head Chefs"
+    }
+  ],
+  "quiz_options": [
+    {
+      "id": "a",
+      "text": "Ketchup",
+      "is_correct": false
+    },
+    {
+      "id": "b",
+      "text": "Wine Reduction",
+      "is_correct": true
+    },
+    {
+      "id": "c",
+      "text": "Rosemary",
+      "is_correct": false
+    },
+    {
+      "id": "d",
+      "text": "Garlic Butter",
+      "is_correct": false
+    }
+  ]
 }

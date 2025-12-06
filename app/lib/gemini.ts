@@ -5,13 +5,13 @@ import { buildMetaphorPrompt } from './prompts'
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!)
 
-export async function generateMetaphor(concept: string, persona: string): Promise<string> {
+export async function generateMetaphor(concept: string, persona: string, lessonStepMode: "fixed" | "dynamic" = "dynamic"): Promise<string> {
   try {
     const model = genAI.getGenerativeModel({
       model: 'gemini-3-pro-preview',
     })
 
-    const prompt = buildMetaphorPrompt(concept, persona)
+    const prompt = buildMetaphorPrompt(concept, persona, lessonStepMode)
 
     const result = await model.generateContent(prompt)
     const response = await result.response
