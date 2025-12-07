@@ -5,7 +5,9 @@ import InputForm from "./components/InputForm"
 import LearningTimeline from "./components/LearningTimeline"
 import MetaphorCard from "./components/MetaphorCard"
 import MultipleChoiceQuiz from "./components/MultipleChoiceQuiz"
+import LogsModal from "./components/LogsModal"
 import { Button } from "@/components/ui/button"
+import { LogEntry, LogType, createLog, truncateText } from "@/app/types/logs"
 
 interface LessonStep {
   step_number: number
@@ -98,13 +100,24 @@ export default function Home() {
   const [quizResult, setQuizResult] = useState<'correct' | 'incorrect' | null>(null)
 
   // State for lesson step mode
-  const [lessonStepMode, setLessonStepMode] = useState<"fixed" | "dynamic">("dynamic")
+  const [lessonStepMode, setLessonStepMode] = useState<"fixed" | "dynamic">("fixed")
+  const [isGeneratingErrorMirror, setIsGeneratingErrorMirror] = useState(false)
+  const [errorMirrorVersion, setErrorMirrorVersion] = useState(0)
+
+  // System logs state
+  const [systemLogs, setSystemLogs] = useState<LogEntry[]>([])
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false)
 
   // Pre-load cached responses for context switching
   const [chefData, setChefData] = useState<MetaphorResponse | null>(null)
   const [captainData, setCaptainData] = useState<MetaphorResponse | null>(null)
 
-  // Load cached data on mount
+  // Helper function to add logs
+  const addLog = (type: LogType, message: string, details?: string, metadata?: Record<string, any>) => {
+    setSystemLogs(prev => [...prev, createLog(type, message, details, metadata)])
+  }
+
+  // Load cached data on mount (for context switching, but don't display until Generate is clicked)
   useEffect(() => {
     async function loadCachedData() {
       try {
@@ -117,11 +130,7 @@ export default function Home() {
 
         setChefData(chef)
         setCaptainData(captain)
-
-        // Display Chef data initially for demo
-        setMetaphorData(chef)
-        setConcept(chef.concept)
-        setPersona(chef.persona)
+        // Don't set metaphorData here - wait for user to click Generate
       } catch (error) {
         console.error('Error loading cached data:', error)
       }
@@ -131,12 +140,34 @@ export default function Home() {
   }, [])
 
   const handleGenerate = async (data: { concept: string; persona: string; lessonStepMode: "fixed" | "dynamic" }) => {
+    // Clear previous logs
+    setSystemLogs([])
+
+    // Add initial log
+    addLog('info', 'Generation request initiated',
+      `Concept: ${data.concept}\nPersona: ${data.persona}\nMode: ${data.lessonStepMode}`,
+      {
+        concept: data.concept,
+        persona: data.persona,
+        lessonStepMode: data.lessonStepMode
+      }
+    )
+
     setIsLoading(true)
     setQuizResult(null)
     setConcept(data.concept)
     setPersona(data.persona)
 
     try {
+      // Log API call
+      addLog('api-call', 'Calling generation API',
+        'Endpoint: POST /api/generate\nModel: gemini-3-pro-preview',
+        {
+          endpoint: '/api/generate',
+          method: 'POST'
+        }
+      )
+
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -150,7 +181,51 @@ export default function Home() {
       }
 
       const result = await response.json()
+
+      // Log API response
+      addLog('api-response', 'Received metaphor data',
+        truncateText(JSON.stringify(result, null, 2), 300),
+        {
+          persona: result.persona,
+          concept: result.concept,
+          lessonSteps: result.lesson_steps?.length || 0,
+          responseTime: result._meta?.responseTime ? `${result._meta.responseTime}ms` : 'unknown'
+        }
+      )
+
+      // Detect if using cached response (check metadata first, then fallback to image URL)
+      const isCached = result._meta?.cached ?? (
+        result.imageUrl?.includes('/images/chef_') ||
+        result.imageUrl?.includes('/images/captain_')
+      )
+
+      if (isCached) {
+        const isFallback = result._meta?.fallback
+        addLog('info', isFallback ? 'Using fallback cached response' : 'Using cached demo response',
+          `Loaded pre-generated ${result.persona} data from cache${isFallback ? ' (API error fallback)' : ''}`,
+          {
+            persona: result.persona,
+            cached: true,
+            fallback: isFallback || false,
+            responseTime: result._meta?.responseTime ? `${result._meta.responseTime}ms` : 'unknown'
+          }
+        )
+      } else {
+        addLog('success', 'Live API generation complete',
+          `Successfully generated content with ${result.lesson_steps?.length || 0} lesson steps`,
+          {
+            cached: false,
+            model: result._meta?.model || 'gemini-3-pro-preview',
+            responseTime: result._meta?.responseTime ? `${result._meta.responseTime}ms` : 'unknown'
+          }
+        )
+      }
+
       setMetaphorData(result)
+
+      // Final success log
+      addLog('success', 'Content loaded successfully',
+        `Ready to display educational content for "${result.concept}" as explained by a ${result.persona}`)
 
       // Update cached data if it's a demo persona
       if (result.persona === 'Chef') {
@@ -159,6 +234,10 @@ export default function Home() {
         setCaptainData(result)
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      addLog('error', 'Generation failed', errorMessage, {
+        error: errorMessage
+      })
       console.error('Error generating explanation:', error)
       alert('Failed to generate explanation. Please try again.')
     } finally {
@@ -191,6 +270,75 @@ export default function Home() {
   }
 
   const alternatePersona = metaphorData?.persona === 'Chef' ? 'Starship Captain' : 'Chef'
+
+  const handleGenerateErrorMirror = async () => {
+    if (!metaphorData) return
+
+    setIsGeneratingErrorMirror(true)
+
+    try {
+      const context = {
+        persona: metaphorData.persona,
+        concept: metaphorData.concept,
+        metaphor_logic: metaphorData.metaphor_logic,
+        quiz_question: metaphorData.quiz_question,
+        quiz_answer: metaphorData.quiz_answer,
+        quiz_options: metaphorData.quiz_options,
+      }
+
+      const response = await fetch('/api/generate-error-mirror', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(context),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate error mirror content')
+      }
+
+      const result = await response.json()
+
+      // Update metaphorData with the new error mirror content
+      setMetaphorData({
+        ...metaphorData,
+        error_states: result.error_states,
+        fallback_error: result.fallback_error,
+        why_text: result.why_text,
+        why_imageUrl: result.why_imageUrl,
+      })
+
+      // Increment version to force quiz component to re-render
+      setErrorMirrorVersion(prev => prev + 1)
+
+      // Also update cached data if applicable
+      if (metaphorData.persona === 'Chef') {
+        setChefData(prev => prev ? {
+          ...prev,
+          error_states: result.error_states,
+          fallback_error: result.fallback_error,
+          why_text: result.why_text,
+          why_imageUrl: result.why_imageUrl,
+        } : null)
+      } else if (metaphorData.persona === 'Starship Captain') {
+        setCaptainData(prev => prev ? {
+          ...prev,
+          error_states: result.error_states,
+          fallback_error: result.fallback_error,
+          why_text: result.why_text,
+          why_imageUrl: result.why_imageUrl,
+        } : null)
+      }
+
+      alert('Error mirror content generated successfully!')
+    } catch (error) {
+      console.error('Error generating error mirror:', error)
+      alert('Failed to generate error mirror content. Please try again.')
+    } finally {
+      setIsGeneratingErrorMirror(false)
+    }
+  }
 
   return (
     <main className="min-h-screen py-12 px-4">
@@ -232,6 +380,7 @@ export default function Home() {
             />
 
             <MultipleChoiceQuiz
+              key={`quiz-${metaphorData.persona}-${metaphorData.concept}-${errorMirrorVersion}`}
               question={metaphorData.quiz_question}
               options={metaphorData.quiz_options}
               explanation={metaphorData.quiz_explanation}
@@ -240,6 +389,31 @@ export default function Home() {
               errorStates={metaphorData.error_states}
               fallbackError={metaphorData.fallback_error}
             />
+
+            {/* Generate Error Mirror Button */}
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleGenerateErrorMirror}
+                disabled={isGeneratingErrorMirror || isLoading}
+                className="glass-panel hover:shadow-neon-topic transition-all duration-300
+                           text-white font-semibold px-8 border-white/20 hover:border-topic
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingErrorMirror ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Generating Error Mirror...
+                  </>
+                ) : (
+                  <>
+                    <span className="emoji-icon mr-2">🪞</span>
+                    Generate Error Mirror Content
+                  </>
+                )}
+              </Button>
+            </div>
 
             {chefData && captainData && (
               <div className="flex justify-center">
@@ -256,8 +430,32 @@ export default function Home() {
                 </Button>
               </div>
             )}
+
+            {/* System Logs Button */}
+            {systemLogs.length > 0 && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setIsLogsModalOpen(true)}
+                  className="glass-panel hover:shadow-neon-topic transition-all duration-300
+                             text-white font-semibold px-8 border-white/20 hover:border-topic"
+                >
+                  <span className="emoji-icon mr-2">📋</span>
+                  View System Logs ({systemLogs.length})
+                </Button>
+              </div>
+            )}
           </>
         )}
+
+        {/* Logs Modal */}
+        <LogsModal
+          isOpen={isLogsModalOpen}
+          onOpenChange={setIsLogsModalOpen}
+          logs={systemLogs}
+          showTrigger={false}
+        />
       </div>
     </main>
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import ErrorMirror from "./ErrorMirror"
@@ -46,9 +46,19 @@ export default function MultipleChoiceQuiz({
   const [showErrorMirror, setShowErrorMirror] = useState(false)
   const [currentErrorState, setCurrentErrorState] = useState<ErrorState | null>(null)
 
-  const handleOptionClick = (optionId: string) => {
-    if (showResult) return // Prevent re-selection after answer
+  // Update currentErrorState when errorStates prop changes (e.g., after regeneration)
+  useEffect(() => {
+    if (selectedOption && showErrorMirror && errorStates) {
+      const updatedErrorState = errorStates.find(e => e.wrong_option_id === selectedOption)
+      if (updatedErrorState) {
+        setCurrentErrorState(updatedErrorState)
+      } else if (fallbackError) {
+        setCurrentErrorState(fallbackError)
+      }
+    }
+  }, [errorStates, fallbackError, selectedOption, showErrorMirror])
 
+  const handleOptionClick = (optionId: string) => {
     setSelectedOption(optionId)
     setShowResult(true)
     setShowWhy(false) // Reset "Why?" state on new answer
@@ -74,19 +84,23 @@ export default function MultipleChoiceQuiz({
   }
 
   const getOptionClass = (option: QuizOption) => {
+    // If no result shown yet, use default styling
     if (!showResult) {
       return "bg-topic/10 border-2 border-topic/30 hover:border-topic hover:bg-topic/20 hover:shadow-neon-topic text-white"
     }
 
+    // If this is the correct answer, always show it as correct
     if (option.is_correct) {
-      return "bg-green-500/20 border-2 border-green-500 shadow-lg shadow-green-500/50 text-green-100"
+      return "bg-green-500/20 border-2 border-green-500 shadow-lg shadow-green-500/50 text-green-100 hover:bg-green-500/30"
     }
 
+    // If this is the currently selected wrong option, show it as incorrect
     if (selectedOption === option.id && !option.is_correct) {
-      return "bg-red-500/20 border-2 border-red-500 animate-shake text-red-100"
+      return "bg-red-500/20 border-2 border-red-500 animate-shake text-red-100 hover:bg-red-500/30"
     }
 
-    return "bg-white/5 border-2 border-white/10 text-white/40"
+    // Other options remain clickable but with muted styling
+    return "bg-white/5 border-2 border-white/10 text-white/40 hover:border-white/20 hover:bg-white/10"
   }
 
   const isCorrect = selectedOption && options.find(o => o.id === selectedOption)?.is_correct
@@ -109,12 +123,11 @@ export default function MultipleChoiceQuiz({
             <button
               key={option.id}
               onClick={() => handleOptionClick(option.id)}
-              disabled={showResult}
               className={`${getOptionClass(option)}
                          px-4 md:px-6 py-3 md:py-4 rounded-xl
                          text-left text-base md:text-lg font-medium
                          transition-all duration-300
-                         disabled:cursor-not-allowed
+                         cursor-pointer
                          focus:outline-none focus:ring-2 focus:ring-topic focus:ring-offset-2 focus:ring-offset-obsidian`}
             >
               <span className="font-bold mr-2">{option.id.toUpperCase()}.</span>
