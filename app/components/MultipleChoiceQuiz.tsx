@@ -29,6 +29,7 @@ interface MultipleChoiceQuizProps {
   whyImageUrl?: string
   errorStates?: ErrorState[]
   fallbackError?: ErrorState
+  onCorrectAnswer?: () => void
 }
 
 export default function MultipleChoiceQuiz({
@@ -39,6 +40,7 @@ export default function MultipleChoiceQuiz({
   whyImageUrl,
   errorStates,
   fallbackError,
+  onCorrectAnswer,
 }: MultipleChoiceQuizProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
@@ -104,6 +106,13 @@ export default function MultipleChoiceQuiz({
   }
 
   const isCorrect = selectedOption && options.find(o => o.id === selectedOption)?.is_correct
+
+  // Trigger callback when user answers correctly
+  useEffect(() => {
+    if (isCorrect && showResult && onCorrectAnswer) {
+      onCorrectAnswer()
+    }
+  }, [isCorrect, showResult, onCorrectAnswer])
 
   return (
     <Card className="glass-panel w-full max-w-6xl mx-auto border-white/10">

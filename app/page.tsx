@@ -6,6 +6,7 @@ import LearningTimeline from "./components/LearningTimeline"
 import MetaphorCard from "./components/MetaphorCard"
 import MultipleChoiceQuiz from "./components/MultipleChoiceQuiz"
 import LogsModal from "./components/LogsModal"
+import DualClassBadge from "./components/DualClassBadge"
 import { Button } from "@/components/ui/button"
 import { LogEntry, LogType, createLog, truncateText } from "@/app/types/logs"
 
@@ -99,6 +100,10 @@ export default function Home() {
   const [isSwitching, setIsSwitching] = useState(false)
   const [quizResult, setQuizResult] = useState<'correct' | 'incorrect' | null>(null)
 
+  // Badge system state - persists across concept changes within session
+  const [badgeUnlocked, setBadgeUnlocked] = useState(false)
+  const [badgeShowAnimation, setBadgeShowAnimation] = useState(false)
+
   // State for lesson step mode
   const [lessonStepMode, setLessonStepMode] = useState<"fixed" | "dynamic">("fixed")
   const [isGeneratingErrorMirror, setIsGeneratingErrorMirror] = useState(false)
@@ -155,6 +160,8 @@ export default function Home() {
 
     setIsLoading(true)
     setQuizResult(null)
+    setBadgeUnlocked(false)      // Reset badge for new session
+    setBadgeShowAnimation(false)  // Reset animation
     setConcept(data.concept)
     setPersona(data.persona)
 
@@ -342,6 +349,15 @@ export default function Home() {
 
   return (
     <main className="min-h-screen py-12 px-4">
+      {/* Gamified Badge Display */}
+      {badgeUnlocked && metaphorData && (
+        <DualClassBadge
+          persona={metaphorData.persona}
+          isVisible={badgeUnlocked}
+          isAnimating={badgeShowAnimation}
+        />
+      )}
+
       <div className="container mx-auto space-y-8">
         <header className="text-center space-y-2">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Dual Class</h1>
@@ -388,10 +404,15 @@ export default function Home() {
               whyImageUrl={metaphorData.why_imageUrl}
               errorStates={metaphorData.error_states}
               fallbackError={metaphorData.fallback_error}
+              onCorrectAnswer={() => {
+                setBadgeUnlocked(true)
+                setBadgeShowAnimation(true)
+                setTimeout(() => setBadgeShowAnimation(false), 3000)
+              }}
             />
 
-            {/* Generate Error Mirror Button */}
-            <div className="flex justify-center">
+            {/* Action Buttons - Horizontally Aligned */}
+            <div className="flex flex-wrap justify-center gap-4">
               <Button
                 variant="outline"
                 size="lg"
@@ -413,10 +434,8 @@ export default function Home() {
                   </>
                 )}
               </Button>
-            </div>
 
-            {chefData && captainData && (
-              <div className="flex justify-center">
+              {chefData && captainData && (
                 <Button
                   variant="outline"
                   size="lg"
@@ -428,12 +447,9 @@ export default function Home() {
                   <span className="emoji-icon mr-2">🔄</span>
                   Switch to {alternatePersona}
                 </Button>
-              </div>
-            )}
+              )}
 
-            {/* System Logs Button */}
-            {systemLogs.length > 0 && (
-              <div className="flex justify-center">
+              {systemLogs.length > 0 && (
                 <Button
                   variant="outline"
                   size="lg"
@@ -444,8 +460,8 @@ export default function Home() {
                   <span className="emoji-icon mr-2">📋</span>
                   View System Logs ({systemLogs.length})
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
 
