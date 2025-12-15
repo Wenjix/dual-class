@@ -38,14 +38,14 @@ export default function FileUploader({ onFileSelect, isProcessing = false }: Fil
     }, [onFileSelect])
 
     return (
-        <div className="w-full max-w-xl mx-auto">
+        <div className="w-full max-w-xl mx-auto animate-in fade-in zoom-in duration-500">
             <div
                 className={cn(
-                    "relative border-2 border-dashed rounded-xl p-12 transition-all duration-300 flex flex-col items-center justify-center text-center",
+                    "relative border border-dashed rounded-3xl p-12 transition-all duration-300 flex flex-col items-center justify-center text-center backdrop-blur-sm",
                     dragActive
-                        ? "border-topic bg-topic/10 scale-105"
-                        : "border-white/20 hover:border-white/40 bg-black/20",
-                    isProcessing ? "animate-pulse border-topic cursor-wait" : "cursor-pointer"
+                        ? "border-neon-green bg-neon-green/5 scale-105 shadow-[0_0_30px_rgba(57,255,20,0.1)]"
+                        : "border-white/10 hover:border-white/30 bg-black/40 hover:bg-white/5",
+                    isProcessing ? "animate-pulse border-neon-green cursor-wait" : "cursor-pointer"
                 )}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -61,17 +61,23 @@ export default function FileUploader({ onFileSelect, isProcessing = false }: Fil
                 />
 
                 {isProcessing ? (
-                    <div className="space-y-4">
-                        <div className="text-4xl animate-bounce">🧠</div>
-                        <div className="text-xl font-bold text-white">Gemini is reading...</div>
-                        <p className="text-white/60 text-sm">Analyzing logical structures and identifying key metaphors</p>
+                    <div className="space-y-6">
+                        <div className="text-6xl animate-bounce">🧠</div>
+                        <div>
+                            <div className="text-2xl font-bold text-white tracking-widest font-display mb-2">READING NEURAL PATTERNS</div>
+                            <p className="text-neon-green font-mono text-sm">Analyzing logical structures...</p>
+                        </div>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        <div className="text-4xl text-white/80 group-hover:scale-110 transition-transform">📄</div>
-                        <div>
-                            <p className="text-lg font-bold text-white">Upload Textbook Chapter</p>
-                            <p className="text-sm text-white/60 mt-1">Drag & drop or click to select PDF</p>
+                    <div className="space-y-6 group">
+                        <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-4xl text-white/80 group-hover:scale-110 group-hover:bg-neon-green/10 group-hover:border-neon-green/50 group-hover:text-neon-green transition-all duration-500 shadow-glass mx-auto">
+                            📄
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-xl font-bold text-white tracking-wide">UPLOAD MISSION DATA</p>
+                            <p className="text-sm text-white/40 font-mono group-hover:text-white/60 transition-colors">
+                                Drag & drop PDF or click to initialize
+                            </p>
                         </div>
                     </div>
                 )}

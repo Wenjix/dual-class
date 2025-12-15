@@ -68,6 +68,7 @@ export default {
 					light: '#5ff0e4',
 					dark: '#00c7b5'
 				},
+				'neon-green': '#39ff14', // High visibility neon green
 				'broadcast-blue': '#0057b8', // ESPN/NFL Blue
 				'broadcast-yellow': '#ffb612', // Highlight Yellow
 				glass: {

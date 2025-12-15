@@ -246,14 +246,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen py-12 px-4">
-      {/* ... keeping header ... */}
       <div className="container mx-auto space-y-8">
-        <header className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Dual Class</h1>
-          <p className="text-lg md:text-xl text-white/70">
-            Learn complex concepts through personalized metaphors powered by Gemini
-          </p>
-        </header>
+        {/* Header removed for cleaner PersonaSelector hero */}
 
         {/* View Mode Switching */}
         {viewMode === "persona_selection" && (
@@ -261,18 +255,21 @@ export default function Home() {
         )}
 
         {viewMode === "input" && (
-          <div className="space-y-8 animate-in fade-in zoom-in duration-500">
-            <div className="text-center space-y-4">
-              <p className="text-xl text-white/60">Choose your path</p>
+          <div className="space-y-12 animate-in fade-in zoom-in duration-500 max-w-5xl mx-auto">
+
+            <div className="text-center space-y-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">INITIALIZE LEARNING PATH</h2>
+              <p className="text-white/50">Upload course material or define custom parameters</p>
             </div>
+
             <FileUploader onFileSelect={handleFileUpload} />
-            {/* ... keeping InputForm ... */}
-            <div className="relative">
+
+            <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-white/10" />
+                <span className="w-full border-t border-white/5" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#0a0a0a] px-2 text-muted-foreground">Or start manually</span>
+              <div className="relative flex justify-center text-xs uppercase tracking-[0.2em]">
+                <span className="bg-[#0a0a0a] px-4 text-white/20">OR MANUAL OVERRIDE</span>
               </div>
             </div>
 

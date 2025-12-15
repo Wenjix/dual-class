@@ -84,10 +84,11 @@ export function PersonaSelector({ onSelectionComplete }: PersonaSelectorProps) {
         <div className="w-full max-w-6xl mx-auto py-12 animate-in fade-in zoom-in duration-500">
             <div className="text-center mb-16 space-y-4">
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-2 font-display">
-                    SELECT YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-broadcast-blue">DUAL CLASS</span>
+                    TURN HOBBIES INTO A <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-broadcast-blue">CHEAT CODE</span>
                 </h1>
-                <p className="text-xl text-white/40 max-w-2xl mx-auto">
-                    Combine your interests with a target subject to create a custom learning persona.
+                <p className="text-xl text-white/60 max-w-3xl mx-auto leading-relaxed">
+                    Why start from scratch? We translate complex subjects like <strong>Computer Science</strong> into the languages you already speak—from <strong>League of Legends</strong> mechanics to <strong>NFL</strong> playbooks.
                 </p>
             </div>
 

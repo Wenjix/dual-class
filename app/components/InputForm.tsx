@@ -24,84 +24,82 @@ export default function InputForm({ onSubmit, isLoading, lessonStepMode, onLesso
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass-panel p-8 md:p-12 rounded-3xl max-w-4xl mx-auto">
-      <div className="text-2xl md:text-4xl text-white/90 flex flex-wrap items-baseline justify-center gap-2 md:gap-3 mb-8">
-        <span className="font-medium">Teach me</span>
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700 delay-200">
 
-        <Input
-          type="text"
-          value={concept}
-          onChange={(e) => setConcept(e.target.value)}
-          disabled={isLoading}
-          className="inline-flex w-auto min-w-[250px] md:min-w-[300px] bg-topic/10 border-2 border-topic/30
-                     focus:border-topic focus:shadow-neon-topic focus-visible:ring-topic text-topic
-                     text-2xl md:text-4xl placeholder:text-topic/40 bg-transparent rounded-lg px-3 md:px-4
-                     h-auto py-1 md:py-2 font-medium"
-          placeholder="a complex concept"
-        />
+      {/* Inputs Container */}
+      <div className="glass-panel p-8 md:p-10 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-md">
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
 
-        <span className="font-medium">as a</span>
+          {/* Concept Input */}
+          <div className="flex-1 w-full space-y-2">
+            <label className="text-xs uppercase tracking-widest text-white/40 pl-1">Target Concept</label>
+            <Input
+              type="text"
+              value={concept}
+              onChange={(e) => setConcept(e.target.value)}
+              disabled={isLoading}
+              className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/20 text-lg md:text-xl py-6 px-4 rounded-xl focus:border-neon-green/50 focus:bg-white/10 transition-all font-display tracking-wide"
+              placeholder="e.g. Transformer Architecture"
+            />
+          </div>
 
-        <Input
-          type="text"
-          value={persona}
-          onChange={(e) => setPersona(e.target.value)}
-          disabled={isLoading}
-          className="inline-flex w-auto min-w-[180px] md:min-w-[200px] bg-user/10 border-2 border-user/30
-                     focus:border-user focus:shadow-neon-user focus-visible:ring-user text-user
-                     text-2xl md:text-4xl placeholder:text-user/40 bg-transparent rounded-lg px-3 md:px-4
-                     h-auto py-1 md:py-2 font-medium"
-          placeholder="profession or hobby"
-        />
-      </div>
+          {/* Connection Icon */}
+          <div className="text-white/20 text-2xl pt-6 hidden md:block">→</div>
 
-      {/* Lesson Step Mode Toggle */}
-      <div className="flex items-center justify-center gap-3 mb-6">
-        <span className="text-white/60 text-sm md:text-base font-medium">Learning Depth:</span>
-        <div className="flex items-center gap-2 glass-panel px-4 py-2 rounded-lg border border-white/10">
-          <button
-            type="button"
-            onClick={() => onLessonStepModeChange("fixed")}
-            className={`px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-all duration-200 ${
-              lessonStepMode === "fixed"
-                ? "bg-topic text-white shadow-neon-topic"
-                : "text-white/60 hover:text-white"
-            }`}
-          >
-            Fixed (3 steps)
-          </button>
-          <button
-            type="button"
-            onClick={() => onLessonStepModeChange("dynamic")}
-            className={`px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-all duration-200 ${
-              lessonStepMode === "dynamic"
-                ? "bg-topic text-white shadow-neon-topic"
-                : "text-white/60 hover:text-white"
-            }`}
-          >
-            Dynamic (3-5 steps)
-          </button>
+          {/* Persona Input */}
+          <div className="flex-1 w-full space-y-2">
+            <label className="text-xs uppercase tracking-widest text-white/40 pl-1">Source Metaphor</label>
+            <Input
+              type="text"
+              value={persona}
+              onChange={(e) => setPersona(e.target.value)}
+              disabled={isLoading}
+              className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/20 text-lg md:text-xl py-6 px-4 rounded-xl focus:border-broadcast-blue/50 focus:bg-white/10 transition-all font-display tracking-wide"
+              placeholder="e.g. NFL Offensive Schemes"
+            />
+          </div>
+        </div>
+
+        {/* Lesson Step Mode Toggle */}
+        <div className="flex items-center justify-center mt-8 pt-6 border-t border-white/5">
+          <div className="flex items-center gap-2 p-1 rounded-full bg-black/40 border border-white/5">
+            <button
+              type="button"
+              onClick={() => onLessonStepModeChange("fixed")}
+              className={`px-6 py-2 rounded-full text-sm font-bold tracking-wider transition-all duration-300 ${lessonStepMode === "fixed"
+                ? "bg-white/10 text-white shadow-inner"
+                : "text-white/40 hover:text-white/60"
+                }`}
+            >
+              QUICK (3 STEPS)
+            </button>
+            <button
+              type="button"
+              onClick={() => onLessonStepModeChange("dynamic")}
+              className={`px-6 py-2 rounded-full text-sm font-bold tracking-wider transition-all duration-300 ${lessonStepMode === "dynamic"
+                ? "bg-neon-green/20 text-neon-green border border-neon-green/20 shadow-[0_0_15px_rgba(57,255,20,0.1)]"
+                : "text-white/40 hover:text-white/60"
+                }`}
+            >
+              DEEP DIVE (5 STEPS)
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Action Button */}
       <Button
         type="submit"
         disabled={isLoading || !concept.trim() || !persona.trim()}
-        className="w-full bg-gradient-to-r from-user to-topic hover:shadow-neon-user
-                   hover:from-user/90 hover:to-topic/90 transition-all duration-300
-                   text-white font-bold text-lg py-6 rounded-xl"
-        size="lg"
+        className="w-full h-20 bg-white text-black hover:bg-neon-green hover:text-black hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(57,255,20,0.4)] transition-all duration-300 rounded-full font-bold text-xl tracking-[0.2em] uppercase border border-white/20"
       >
         {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Generating...
-          </>
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span>ESTABLISHING LINK...</span>
+          </div>
         ) : (
-          <>
-            <span className="text-2xl mr-2 emoji-icon">✨</span>
-            Generate
-          </>
+          <span>INITIALIZE CUSTOM LINK</span>
         )}
       </Button>
     </form>
