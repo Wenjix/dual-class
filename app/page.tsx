@@ -190,6 +190,9 @@ export default function Home() {
     }
   }
 
+  // RPG Progression State
+  const [xpState, setXpState] = useState({ gamer: 0, athlete: 0 })
+
   const handleLevelComplete = () => {
     // Logic to unlock the next level
     // For demo: Completing Level 1 unlocks Level 2
@@ -202,6 +205,13 @@ export default function Home() {
           return l;
         })
       }))
+
+      // Award XP
+      setXpState(prev => ({
+        gamer: Math.min(prev.gamer + 35, 100),
+        athlete: Math.min(prev.athlete + 35, 100)
+      }))
+
       alert("Level Complete! Next Quest Unlocked.");
       handleBackToMap();
     }
@@ -242,12 +252,9 @@ export default function Home() {
     console.log("Generating...", data)
   }
 
-  // ... (keep unused functions) ...
-
   return (
     <main className="min-h-screen py-12 px-4">
       <div className="container mx-auto space-y-8">
-        {/* Header removed for cleaner PersonaSelector hero */}
 
         {/* View Mode Switching */}
         {viewMode === "persona_selection" && (
@@ -293,6 +300,7 @@ export default function Home() {
             curriculum={curriculumState} // Use dynamic state instead of static mock
             onLevelSelect={handleLevelSelect}
             currentLevelId={activeLevelId}
+            xp={xpState}
           />
         )}
 

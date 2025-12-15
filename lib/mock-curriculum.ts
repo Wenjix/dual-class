@@ -27,7 +27,7 @@ export const MOCK_CURRICULUM: Curriculum = {
         },
         {
             id: 2,
-            title: "Level 2: The Raid Coordination",
+            title: "Level 2: The Teamfight Coordination",
             topic: "Multi-Head Attention",
             thumbnail: "/assets/gamer_raid_thumb.png",
             status: "LOCKED",

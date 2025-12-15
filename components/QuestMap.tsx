@@ -4,23 +4,29 @@ import React from "react"
 import { Curriculum, QuestLevel } from "@/lib/mock-curriculum"
 import { cn } from "@/lib/utils"
 
+import { DualClassHUD } from "./DualClassHUD"
+
 interface QuestMapProps {
     curriculum: Curriculum
     onLevelSelect: (level: QuestLevel) => void
     currentLevelId?: number
+    xp?: { gamer: number; athlete: number }
 }
 
-export default function QuestMap({ curriculum, onLevelSelect, currentLevelId }: QuestMapProps) {
+export default function QuestMap({ curriculum, onLevelSelect, currentLevelId, xp }: QuestMapProps) {
     return (
         <div className="w-full max-w-4xl mx-auto pt-12 px-6 animate-in fade-in slide-in-from-bottom-10 duration-700">
             {/* Header */}
-            <div className="mb-12 text-center">
+            <div className="mb-8 text-center">
                 <h1 className="text-4xl font-bold mb-4 font-display text-white">{curriculum.source_title}</h1>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-sm font-mono text-white/60">
                     <span>AI GENERATED CURRICULUM</span>
                     <span className="w-2 h-2 rounded-full bg-topic animate-pulse" />
                 </div>
             </div>
+
+            {/* RPG Progression HUD */}
+            {xp && <DualClassHUD gamerXp={xp.gamer} athleteXp={xp.athlete} />}
 
             {/* The Levels Grid */}
             <div className="grid gap-6">
