@@ -15,6 +15,7 @@ import { MOCK_CURRICULUM, QuestLevel } from "@/lib/mock-curriculum"
 import { MOCK_GAMER_DATA, MOCK_SPORTS_DATA } from "@/lib/data"
 import { GamifiedCard } from "@/components/GamifiedCard"
 import { QuizSection } from "@/components/QuizSection"
+import { PersonaSelector } from "@/components/PersonaSelector"
 
 interface LessonStep {
   step_number: number
@@ -151,7 +152,7 @@ export default function Home() {
   }, [])
 
   // Curriculum Transformation State
-  const [viewMode, setViewMode] = useState<"input" | "processing" | "quest_map" | "level">("input")
+  const [viewMode, setViewMode] = useState<"persona_selection" | "input" | "processing" | "quest_map" | "level">("persona_selection")
   const [activeLevelId, setActiveLevelId] = useState<number | undefined>(undefined)
 
   // Metaphor State (Gamer vs Sports) - Persistent across views
@@ -160,6 +161,9 @@ export default function Home() {
   // Error Mirror State for Drill Down
   const [isErrorMode, setIsErrorMode] = useState(false)
   const [isShaking, setIsShaking] = useState(false)
+
+  // Multi-class state
+  const [selectedPersonas, setSelectedPersonas] = useState<string[]>([])
 
   // Progress State
   // Initialize with the default curriculum state, but we'll modify it locally
@@ -219,6 +223,16 @@ export default function Home() {
     setTimeout(() => setIsShaking(false), 500)
   }
 
+  const handlePersonaSelection = (personas: string[], target: string) => {
+    setSelectedPersonas(personas)
+    // Set initial persona logic: if gamer in list, default gamer; else whatever
+    if (personas.includes('lol')) setCurrentPersonaMode('gamer')
+    else if (personas.includes('nfl')) setCurrentPersonaMode('sports')
+
+    // Transition to input mode after selection
+    setViewMode("input")
+  }
+
   // Derived data based on mode
   const currentCardData = currentPersonaMode === 'gamer' ? MOCK_GAMER_DATA : MOCK_SPORTS_DATA
 
@@ -228,7 +242,7 @@ export default function Home() {
     console.log("Generating...", data)
   }
 
-  // ... (keep unused functions for safety)
+  // ... (keep unused functions) ...
 
   return (
     <main className="min-h-screen py-12 px-4">
@@ -242,6 +256,10 @@ export default function Home() {
         </header>
 
         {/* View Mode Switching */}
+        {viewMode === "persona_selection" && (
+          <PersonaSelector onSelectionComplete={handlePersonaSelection} />
+        )}
+
         {viewMode === "input" && (
           <div className="space-y-8 animate-in fade-in zoom-in duration-500">
             <div className="text-center space-y-4">
@@ -297,15 +315,17 @@ export default function Home() {
                 <span className="font-bold text-xs uppercase tracking-widest">Back to Map</span>
               </Button>
 
-              {/* Persona Switcher */}
-              <Button
-                variant="outline"
-                onClick={togglePersonaMode}
-                className="pointer-events-auto glass-panel hover:shadow-neon-topic transition-all duration-300 text-white border-white/20"
-              >
-                <span className="mr-2">{currentPersonaMode === 'gamer' ? '🎮' : '🏈'}</span>
-                Switch to {currentPersonaMode === 'gamer' ? 'Sports' : 'Gamer'}
-              </Button>
+              {/* Persona Switcher - Only show if we selected multiple personas (for demo: if both LoL and NFL selected) */}
+              {(selectedPersonas.includes('lol') && selectedPersonas.includes('nfl')) && (
+                <Button
+                  variant="outline"
+                  onClick={togglePersonaMode}
+                  className="pointer-events-auto glass-panel hover:shadow-neon-topic transition-all duration-300 text-white border-white/20"
+                >
+                  <span className="mr-2">{currentPersonaMode === 'gamer' ? '🎮' : '🏈'}</span>
+                  Switch to {currentPersonaMode === 'gamer' ? 'Sports' : 'Gamer'}
+                </Button>
+              )}
             </div>
 
             {/* Component content padding for header */}
