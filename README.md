@@ -1,6 +1,7 @@
 # Dual Class Learning Engine ⚔️
 
 > **Turn Your Hobbies Into a Cheat Code.**
+> [**Watch the Demo**](https://youtu.be/AOaFfaqUk3E)
 
 **Here is the pitch:**
 Imagine trying to learn how the **Transformer Architecture** works. It’s complicated, right? Now imagine learning it through the game mechanics of **League of Legends** or through **NFL game plan** templates. Suddenly, it clicks, because we're explaining it in a metaphorical language you already understand.

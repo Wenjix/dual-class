@@ -120,36 +120,12 @@ export default function Home() {
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([])
   const [isLogsModalOpen, setIsLogsModalOpen] = useState(false)
 
-  // Pre-load cached responses for context switching
-  const [chefData, setChefData] = useState<MetaphorResponse | null>(null)
-  const [captainData, setCaptainData] = useState<MetaphorResponse | null>(null)
-
   // Helper function to add logs
   const addLog = (type: LogType, message: string, details?: string, metadata?: Record<string, any>) => {
     setSystemLogs(prev => [...prev, createLog(type, message, details, metadata)])
   }
 
-  // Load cached data on mount (for context switching, but don't display until Generate is clicked)
-  useEffect(() => {
-    async function loadCachedData() {
-      try {
-        const [chefRes, captainRes] = await Promise.all([
-          fetch('/data/chef_response.json'),
-          fetch('/data/captain_response.json'),
-        ])
-        const chef = await chefRes.json()
-        const captain = await captainRes.json()
 
-        setChefData(chef)
-        setCaptainData(captain)
-        // Don't set metaphorData here - wait for user to click Generate
-      } catch (error) {
-        console.error('Error loading cached data:', error)
-      }
-    }
-
-    loadCachedData()
-  }, [])
 
   // Curriculum Transformation State
   const [viewMode, setViewMode] = useState<"persona_selection" | "input" | "processing" | "quest_map" | "level">("persona_selection")
