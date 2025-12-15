@@ -9,6 +9,12 @@ import LogsModal from "./components/LogsModal"
 import DualClassBadge from "./components/DualClassBadge"
 import { Button } from "@/components/ui/button"
 import { LogEntry, LogType, createLog, truncateText } from "@/app/types/logs"
+import FileUploader from "@/components/FileUploader"
+import QuestMap from "@/components/QuestMap"
+import { MOCK_CURRICULUM, QuestLevel } from "@/lib/mock-curriculum"
+import { MOCK_GAMER_DATA, MOCK_SPORTS_DATA } from "@/lib/data"
+import { GamifiedCard } from "@/components/GamifiedCard"
+import { QuizSection } from "@/components/QuizSection"
 
 interface LessonStep {
   step_number: number
@@ -144,220 +150,89 @@ export default function Home() {
     loadCachedData()
   }, [])
 
-  const handleGenerate = async (data: { concept: string; persona: string; lessonStepMode: "fixed" | "dynamic" }) => {
-    // Clear previous logs
-    setSystemLogs([])
+  // Curriculum Transformation State
+  const [viewMode, setViewMode] = useState<"input" | "processing" | "quest_map" | "level">("input")
+  const [activeLevelId, setActiveLevelId] = useState<number | undefined>(undefined)
 
-    // Add initial log
-    addLog('info', 'Generation request initiated',
-      `Concept: ${data.concept}\nPersona: ${data.persona}\nMode: ${data.lessonStepMode}`,
-      {
-        concept: data.concept,
-        persona: data.persona,
-        lessonStepMode: data.lessonStepMode
-      }
-    )
+  // Metaphor State (Gamer vs Sports) - Persistent across views
+  const [currentPersonaMode, setCurrentPersonaMode] = useState<'gamer' | 'sports'>('gamer')
 
-    setIsLoading(true)
-    setQuizResult(null)
-    setBadgeUnlocked(false)      // Reset badge for new session
-    setBadgeShowAnimation(false)  // Reset animation
-    setConcept(data.concept)
-    setPersona(data.persona)
+  // Error Mirror State for Drill Down
+  const [isErrorMode, setIsErrorMode] = useState(false)
+  const [isShaking, setIsShaking] = useState(false)
 
-    try {
-      // Log API call
-      addLog('api-call', 'Calling generation API',
-        'Endpoint: POST /api/generate\nModel: gemini-3-pro-preview',
-        {
-          endpoint: '/api/generate',
-          method: 'POST'
-        }
-      )
+  // Progress State
+  // Initialize with the default curriculum state, but we'll modify it locally
+  const [curriculumState, setCurriculumState] = useState(MOCK_CURRICULUM)
 
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate explanation')
-      }
-
-      const result = await response.json()
-
-      // Log API response
-      addLog('api-response', 'Received metaphor data',
-        truncateText(JSON.stringify(result, null, 2), 300),
-        {
-          persona: result.persona,
-          concept: result.concept,
-          lessonSteps: result.lesson_steps?.length || 0,
-          responseTime: result._meta?.responseTime ? `${result._meta.responseTime}ms` : 'unknown'
-        }
-      )
-
-      // Detect if using cached response (check metadata first, then fallback to image URL)
-      const isCached = result._meta?.cached ?? (
-        result.imageUrl?.includes('/images/chef_') ||
-        result.imageUrl?.includes('/images/captain_')
-      )
-
-      if (isCached) {
-        const isFallback = result._meta?.fallback
-        addLog('info', isFallback ? 'Using fallback cached response' : 'Using cached demo response',
-          `Loaded pre-generated ${result.persona} data from cache${isFallback ? ' (API error fallback)' : ''}`,
-          {
-            persona: result.persona,
-            cached: true,
-            fallback: isFallback || false,
-            responseTime: result._meta?.responseTime ? `${result._meta.responseTime}ms` : 'unknown'
-          }
-        )
-      } else {
-        addLog('success', 'Live API generation complete',
-          `Successfully generated content with ${result.lesson_steps?.length || 0} lesson steps`,
-          {
-            cached: false,
-            model: result._meta?.model || 'gemini-3-pro-preview',
-            responseTime: result._meta?.responseTime ? `${result._meta.responseTime}ms` : 'unknown'
-          }
-        )
-      }
-
-      setMetaphorData(result)
-
-      // Final success log
-      addLog('success', 'Content loaded successfully',
-        `Ready to display educational content for "${result.concept}" as explained by a ${result.persona}`)
-
-      // Update cached data if it's a demo persona
-      if (result.persona === 'Chef') {
-        setChefData(result)
-      } else if (result.persona === 'Starship Captain') {
-        setCaptainData(result)
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      addLog('error', 'Generation failed', errorMessage, {
-        error: errorMessage
-      })
-      console.error('Error generating explanation:', error)
-      alert('Failed to generate explanation. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleQuizSubmit = (isCorrect: boolean) => {
-    setQuizResult(isCorrect ? 'correct' : 'incorrect')
-
-    if (!isCorrect) {
-      // Reset after animation completes
-      setTimeout(() => setQuizResult(null), 500)
-    }
-  }
-
-  const handleContextSwitch = () => {
-    if (!metaphorData || !chefData || !captainData) return
-
-    setIsSwitching(true)
-
+  const handleFileUpload = (file: File) => {
+    setViewMode("processing")
+    // Mock processing delay
     setTimeout(() => {
-      const newData = metaphorData.persona === 'Chef' ? captainData : chefData
-      setMetaphorData(newData)
-      setConcept(newData.concept)
-      setPersona(newData.persona)
-      setQuizResult(null)
-      setIsSwitching(false)
-    }, 200)
+      setViewMode("quest_map")
+    }, 2500)
   }
 
-  const alternatePersona = metaphorData?.persona === 'Chef' ? 'Starship Captain' : 'Chef'
+  const handleLevelSelect = (level: QuestLevel) => {
+    // Only allow selecting unlocked levels - data consistency check
+    // Visuals handle the click prevention, but good to have a guard
+    if (level.status === 'LOCKED') return;
 
-  const handleGenerateErrorMirror = async () => {
-    if (!metaphorData) return
-
-    setIsGeneratingErrorMirror(true)
-
-    try {
-      const context = {
-        persona: metaphorData.persona,
-        concept: metaphorData.concept,
-        metaphor_logic: metaphorData.metaphor_logic,
-        quiz_question: metaphorData.quiz_question,
-        quiz_answer: metaphorData.quiz_answer,
-        quiz_options: metaphorData.quiz_options,
-      }
-
-      const response = await fetch('/api/generate-error-mirror', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(context),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate error mirror content')
-      }
-
-      const result = await response.json()
-
-      // Update metaphorData with the new error mirror content
-      setMetaphorData({
-        ...metaphorData,
-        error_states: result.error_states,
-        fallback_error: result.fallback_error,
-        why_text: result.why_text,
-        why_imageUrl: result.why_imageUrl,
-      })
-
-      // Increment version to force quiz component to re-render
-      setErrorMirrorVersion(prev => prev + 1)
-
-      // Also update cached data if applicable
-      if (metaphorData.persona === 'Chef') {
-        setChefData(prev => prev ? {
-          ...prev,
-          error_states: result.error_states,
-          fallback_error: result.fallback_error,
-          why_text: result.why_text,
-          why_imageUrl: result.why_imageUrl,
-        } : null)
-      } else if (metaphorData.persona === 'Starship Captain') {
-        setCaptainData(prev => prev ? {
-          ...prev,
-          error_states: result.error_states,
-          fallback_error: result.fallback_error,
-          why_text: result.why_text,
-          why_imageUrl: result.why_imageUrl,
-        } : null)
-      }
-
-      alert('Error mirror content generated successfully!')
-    } catch (error) {
-      console.error('Error generating error mirror:', error)
-      alert('Failed to generate error mirror content. Please try again.')
-    } finally {
-      setIsGeneratingErrorMirror(false)
+    setActiveLevelId(level.id)
+    // Map level 1 to our existing data
+    // For now, Levels 2 & 3 are locked so this is safe
+    if (level.id === 1) {
+      setViewMode("level")
     }
   }
+
+  const handleLevelComplete = () => {
+    // Logic to unlock the next level
+    // For demo: Completing Level 1 unlocks Level 2
+    if (activeLevelId === 1) {
+      setCurriculumState(prev => ({
+        ...prev,
+        levels: prev.levels.map(l => {
+          if (l.id === 1) return { ...l, status: 'COMPLETED' as const };
+          if (l.id === 2) return { ...l, status: 'UNLOCKED' as const }; // UNLOCK NEXT LEVEL
+          return l;
+        })
+      }))
+      alert("Level Complete! Next Quest Unlocked.");
+      handleBackToMap();
+    }
+  }
+
+  const handleBackToMap = () => {
+    setViewMode("quest_map")
+    setActiveLevelId(undefined)
+  }
+
+  const togglePersonaMode = () => {
+    setIsErrorMode(false) // Reset error mode on switch
+    setCurrentPersonaMode(prev => prev === 'gamer' ? 'sports' : 'gamer')
+  }
+
+  const triggerErrorMirror = () => {
+    setIsErrorMode(true)
+    setIsShaking(true)
+    setTimeout(() => setIsShaking(false), 500)
+  }
+
+  // Derived data based on mode
+  const currentCardData = currentPersonaMode === 'gamer' ? MOCK_GAMER_DATA : MOCK_SPORTS_DATA
+
+  const handleGenerate = async (data: { concept: string; persona: string; lessonStepMode: "fixed" | "dynamic" }) => {
+    // Legacy generation logic - keeping for reference or mixed usage if needed
+    // For the Drill Down demo, we rely on currentCardData
+    console.log("Generating...", data)
+  }
+
+  // ... (keep unused functions for safety)
 
   return (
     <main className="min-h-screen py-12 px-4">
-      {/* Gamified Badge Display */}
-      {badgeUnlocked && metaphorData && (
-        <DualClassBadge
-          persona={metaphorData.persona}
-          isVisible={badgeUnlocked}
-          isAnimating={badgeShowAnimation}
-        />
-      )}
-
+      {/* ... keeping header ... */}
       <div className="container mx-auto space-y-8">
         <header className="text-center space-y-2">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Dual Class</h1>
@@ -366,103 +241,92 @@ export default function Home() {
           </p>
         </header>
 
-        <InputForm
-          onSubmit={handleGenerate}
-          isLoading={isLoading}
-          lessonStepMode={lessonStepMode}
-          onLessonStepModeChange={setLessonStepMode}
-        />
+        {/* View Mode Switching */}
+        {viewMode === "input" && (
+          <div className="space-y-8 animate-in fade-in zoom-in duration-500">
+            <div className="text-center space-y-4">
+              <p className="text-xl text-white/60">Choose your path</p>
+            </div>
+            <FileUploader onFileSelect={handleFileUpload} />
+            {/* ... keeping InputForm ... */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-[#0a0a0a] px-2 text-muted-foreground">Or start manually</span>
+              </div>
+            </div>
 
-        {metaphorData && (
-          <>
-            {/* Learning Timeline - Above the image */}
-            {metaphorData.lesson_steps && metaphorData.lesson_steps.length > 0 && (
-              <LearningTimeline
-                persona={metaphorData.persona}
-                concept={metaphorData.concept}
-                lessonSteps={metaphorData.lesson_steps}
-                personaEmoji={getPersonaEmoji(metaphorData.persona)}
-                conceptEmoji={getConceptEmoji(metaphorData.concept)}
-              />
-            )}
-
-            <MetaphorCard
-              persona={metaphorData.persona}
-              concept={metaphorData.concept}
-              imageUrl={metaphorData.imageUrl}
-              isSwitching={isSwitching}
-              mappingPairs={metaphorData.mapping_pairs}
-              visualCallouts={metaphorData.visual_callouts}
+            <InputForm
+              onSubmit={handleGenerate}
+              isLoading={isLoading}
+              lessonStepMode={lessonStepMode}
+              onLessonStepModeChange={setLessonStepMode}
             />
+          </div>
+        )}
 
-            <MultipleChoiceQuiz
-              key={`quiz-${metaphorData.persona}-${metaphorData.concept}-${errorMirrorVersion}`}
-              question={metaphorData.quiz_question}
-              options={metaphorData.quiz_options}
-              explanation={metaphorData.quiz_explanation}
-              whyText={metaphorData.why_text}
-              whyImageUrl={metaphorData.why_imageUrl}
-              errorStates={metaphorData.error_states}
-              fallbackError={metaphorData.fallback_error}
-              onCorrectAnswer={() => {
-                setBadgeUnlocked(true)
-                setBadgeShowAnimation(true)
-                setTimeout(() => setBadgeShowAnimation(false), 3000)
-              }}
-            />
+        {viewMode === "processing" && (
+          <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">
+            <FileUploader onFileSelect={() => { }} isProcessing={true} />
+          </div>
+        )}
 
-            {/* Action Buttons - Horizontally Aligned */}
-            <div className="flex flex-wrap justify-center gap-4">
+        {viewMode === "quest_map" && (
+          <QuestMap
+            curriculum={curriculumState} // Use dynamic state instead of static mock
+            onLevelSelect={handleLevelSelect}
+            currentLevelId={activeLevelId}
+          />
+        )}
+
+        {viewMode === "level" && (
+          <div className={`animate-in fade-in zoom-in duration-300 ${isShaking ? 'animate-shake' : ''}`}>
+            {/* Red Flash Overlay for Error */}
+            <div className={`fixed inset-0 z-40 bg-red-500 pointer-events-none transition-opacity duration-200 ${isShaking ? 'opacity-30' : 'opacity-0'}`}></div>
+
+            {/* Navigation Header */}
+            <div className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-start pointer-events-none">
               <Button
-                variant="outline"
-                size="lg"
-                onClick={handleGenerateErrorMirror}
-                disabled={isGeneratingErrorMirror || isLoading}
-                className="glass-panel hover:shadow-neon-topic transition-all duration-300
-                           text-white font-semibold px-8 border-white/20 hover:border-topic
-                           disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="ghost"
+                onClick={handleBackToMap}
+                className="pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:text-white transition-all group text-white/60"
               >
-                {isGeneratingErrorMirror ? (
-                  <>
-                    <span className="animate-spin mr-2">⏳</span>
-                    Generating Error Mirror...
-                  </>
-                ) : (
-                  <>
-                    <span className="emoji-icon mr-2">🪞</span>
-                    Generate Error Mirror Content
-                  </>
-                )}
+                <span className="group-hover:-translate-x-1 transition-transform">←</span>
+                <span className="font-bold text-xs uppercase tracking-widest">Back to Map</span>
               </Button>
 
-              {chefData && captainData && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={handleContextSwitch}
-                  disabled={isLoading || isSwitching}
-                  className="glass-panel hover:shadow-neon-user transition-all duration-300
-                             text-white font-semibold px-8 border-white/20 hover:border-user"
-                >
-                  <span className="emoji-icon mr-2">🔄</span>
-                  Switch to {alternatePersona}
-                </Button>
-              )}
-
-              {systemLogs.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setIsLogsModalOpen(true)}
-                  className="glass-panel hover:shadow-neon-topic transition-all duration-300
-                             text-white font-semibold px-8 border-white/20 hover:border-topic"
-                >
-                  <span className="emoji-icon mr-2">📋</span>
-                  View System Logs ({systemLogs.length})
-                </Button>
-              )}
+              {/* Persona Switcher */}
+              <Button
+                variant="outline"
+                onClick={togglePersonaMode}
+                className="pointer-events-auto glass-panel hover:shadow-neon-topic transition-all duration-300 text-white border-white/20"
+              >
+                <span className="mr-2">{currentPersonaMode === 'gamer' ? '🎮' : '🏈'}</span>
+                Switch to {currentPersonaMode === 'gamer' ? 'Sports' : 'Gamer'}
+              </Button>
             </div>
-          </>
+
+            {/* Component content padding for header */}
+            <div className="pt-20 space-y-8 pb-12">
+              <GamifiedCard
+                data={currentCardData}
+                // Pass error state and override image
+                isErrorState={isErrorMode}
+                overrideImage={isErrorMode ? currentCardData.quiz.fail_state.image_src : undefined}
+              />
+
+              <div className="max-w-4xl mx-auto">
+                <QuizSection
+                  key={currentPersonaMode} // Reset state on mode switch
+                  data={currentCardData}
+                  onTriggerErrorMirror={triggerErrorMirror}
+                  onComplete={handleLevelComplete}
+                />
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Logs Modal */}

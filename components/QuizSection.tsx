@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils';
 interface QuizSectionProps {
     data: any; // Using any for loose typing as per project style, can refine later
     onTriggerErrorMirror: () => void;
+    onComplete?: () => void;
 }
 
-export function QuizSection({ data, onTriggerErrorMirror }: QuizSectionProps) {
+export function QuizSection({ data, onTriggerErrorMirror, onComplete }: QuizSectionProps) {
     const [status, setStatus] = useState<'idle' | 'correct' | 'wrong'>('idle');
     const isGamer = data.meta.theme_color === 'neon-green';
 
@@ -32,7 +33,10 @@ export function QuizSection({ data, onTriggerErrorMirror }: QuizSectionProps) {
     const handleAnswer = (isCorrect: boolean) => {
         if (isCorrect) {
             setStatus('correct');
-            // Optional: Play a "Level Up" sound or green flash
+            // Notify parent of completion
+            if (onComplete) {
+                setTimeout(onComplete, 1000); // Small delay for visual satisfaction
+            }
         } else {
             setStatus('wrong');
             // CRITICAL: This triggers the image swap in the parent

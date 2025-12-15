@@ -7,6 +7,7 @@ export const MOCK_GAMER_DATA = {
     "visual_card": {
         "left_label": "THE TEAM FIGHT",
         "right_label": "THE ATTENTION HEAD",
+        "image_src": "/assets/gamer_hero.png",
         "image_prompt": "Split screen. LEFT: A chaotic MOBA game teamfight (League of Legends style) top-down view. A magical green healing beam connects the player character to a teammate. RIGHT: A data visualization of a Neural Network where a green connection line links a 'Query' node to a 'Value' node. CRITICAL: The green beam in the game and the green line in the data viz must look identical.",
         "render_text_elements": [
             { "text": "PRIORITY: HIGH", "location": "on the healing beam" },
@@ -31,6 +32,7 @@ export const MOCK_GAMER_DATA = {
         ],
         // The "Error Mirror" Image
         "fail_state": {
+            "image_src": "/assets/gamer_fail.png",
             "image_prompt": "A League of Legends healer casting a massive green ultimate spell on a Tank character who already has full health. Next to them, a 'Carry' character is greyed out/dead. Text 'MANA WASTED' in red game font.",
             "feedback_title": "Inefficient Compute!",
             "feedback_text": "You just spent all your attention resources on a token that didn't need it. In AI, attending to a low-value token dilutes the context."
@@ -50,6 +52,7 @@ export const MOCK_SPORTS_DATA = {
     "visual_card": {
         "left_label": "THE FIELD READ",
         "right_label": "THE ATTENTION MASK",
+        "image_src": "/assets/sports_hero.png",
         // Note the "Broadcast" visual style prompt
         "image_prompt": "Split screen. LEFT: A vivid NFL broadcast view from behind the Quarterback. Yellow 'route lines' are drawn on the field. RIGHT: A clean blue/white data dashboard showing a matrix of probabilities. CRITICAL: The yellow route line on the field must match the yellow data connection line on the right.",
         "render_text_elements": [
@@ -75,6 +78,7 @@ export const MOCK_SPORTS_DATA = {
         ],
         // The "Error Mirror" Image
         "fail_state": {
+            "image_src": "/assets/sports_fail.png",
             "image_prompt": "American Football view. A Quarterback throwing the ball directly into a crowd of 3 defenders. The ball is being intercepted. Text 'INTERCEPTION' in big bold broadcast graphics.",
             "feedback_title": "Hallucination Detected!",
             "feedback_text": "You forced a connection where none existed. In AI, attending to masked tokens creates noise and hallucinations."

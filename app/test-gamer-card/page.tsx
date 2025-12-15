@@ -41,9 +41,8 @@ export default function DualClassDemo() {
     };
 
     // Determine which image to show
-    const activeImagePrompt = isErrorMode
-        ? currentData.quiz.fail_state.image_prompt
-        : currentData.visual_card.image_prompt;
+    // FIX 1: Use `image_src` for the fail state visual, falling back to prompt if needed (though we have assets now)
+    const activeFailImage = isErrorMode ? currentData.quiz.fail_state.image_src : undefined;
 
     return (
         <main className={`min-h-screen font-sans overflow-hidden relative transition-colors duration-700 flex flex-col items-center justify-center p-8 ${mode === 'gamer' ? 'bg-[#0f1015] selection:bg-[#39ff14] selection:text-black' : 'bg-slate-100 selection:bg-broadcast-yellow selection:text-black'} ${isShaking ? 'animate-shake' : ''}`}>
@@ -62,13 +61,14 @@ export default function DualClassDemo() {
             <div className={`transition-opacity duration-300 w-full ${isGlitching ? 'opacity-0 blur-lg' : 'opacity-100 blur-0'}`}>
                 <GamifiedCard
                     data={currentData}
-                    overrideImage={isErrorMode ? activeImagePrompt : undefined}
+                    overrideImage={activeFailImage}
                     isErrorState={isErrorMode}
                 />
 
                 {/* Quiz Section */}
                 <div className="w-full max-w-4xl mx-auto">
                     <QuizSection
+                        key={mode} // FIX 2: Reset quiz state when mode switches
                         data={currentData}
                         onTriggerErrorMirror={triggerErrorMirror}
                     />

@@ -55,61 +55,84 @@ export function GamifiedCard({ data, overrideImage, isErrorState }: GamifiedCard
                 </h1>
             </div>
 
-            {/* Visual Card (Split Screen Placeholder) */}
-            <div className={cn("relative w-full aspect-video border mb-8 rounded overflow-hidden flex", theme.bg, theme.subtleBorder)}>
-                {/* Full visual override for error state or single image prompt */}
-                {overrideImage ? (
-                    <div className={cn("w-full h-full flex items-center justify-center p-8 text-center relative overflow-hidden group", theme.leftOverlayClass)}>
-                        <div className="absolute inset-0 bg-black/20 z-0"></div>
-                        <p className={cn("relative z-10 text-lg font-bold max-w-2xl px-8 py-4 border bg-black/50 backdrop-blur-sm shadow-xl rounded", theme.text, theme.border)}>
-                            [FAIL STATE IMG: {overrideImage}]
-                        </p>
+            {/* Visual Card Section */}
+            <div className={cn(
+                "relative w-full aspect-video border mb-8 rounded overflow-hidden",
+                theme.bg,
+                theme.subtleBorder,
+                isErrorState && "border-red-500 animate-pulse"
+            )}>
+                {/* Content: Image or Split Fallback */}
+                {data.visual_card.image_src || overrideImage ? (
+                    <div className="absolute inset-0 w-full h-full">
+                        <img
+                            src={overrideImage || data.visual_card.image_src}
+                            alt="Visual Metaphor"
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Fail State Overlay Effect */}
+                        {overrideImage && (
+                            <div className="absolute inset-0 bg-red-900/10 z-10 pointer-events-none" />
+                        )}
+                        {/* Labels Overlay (Top Corners) - Hide if Override/Fail */}
+                        {!overrideImage && (
+                            <>
+                                <div className="absolute top-2 left-2 z-20 text-xs font-bold bg-black/60 backdrop-blur px-2 py-1 rounded border border-white/20 text-white/90 shadow-lg">
+                                    {data.visual_card.left_label}
+                                </div>
+                                <div className="absolute top-2 right-2 z-20 text-xs font-bold bg-black/60 backdrop-blur px-2 py-1 rounded border border-white/20 text-white/90 shadow-lg">
+                                    {data.visual_card.right_label}
+                                </div>
+                            </>
+                        )}
                     </div>
                 ) : (
-                    <>
+                    /* Fallback: CSS Split Screen */
+                    <div className="absolute inset-0 flex w-full h-full">
                         {/* Left: Game World */}
-                        <div className={cn("w-1/2 relative border-r p-4 flex flex-col justify-between group transition-colors", theme.subtleBorder)}>
-                            <div className={cn("absolute inset-0 transition-all", theme.leftOverlayClass)}></div>
-                            <span className={cn("relative z-10 px-2 py-1 text-xs w-fit border font-bold", theme.bg, theme.border, theme.text)}>{data.visual_card.left_label}</span>
-
-                            {/* Visual Placeholder for Image Prompt */}
-                            <div className="flex-1 flex items-center justify-center text-center p-4">
-                                <p className="text-xs opacity-60 max-w-[80%]">
-                                    [IMG: {data.visual_card.image_prompt.split(".")[1] || "Game World Visualization"}]
-                                </p>
+                        <div className={cn("w-1/2 h-full border-r-2 relative bg-black", theme.border)}>
+                            <div className="absolute top-2 left-2 text-xs font-bold bg-black/50 px-2 py-1 rounded border border-white/20 text-white/70">
+                                {data.visual_card.left_label}
+                            </div>
+                            <div className="flex items-center justify-center h-full text-center p-4">
+                                <span className="text-sm opacity-50 font-mono text-white">[IMG: {data.visual_card.left_label}]</span>
                             </div>
                         </div>
 
                         {/* Right: Tech World */}
-                        <div className={cn("w-1/2 relative p-4 flex flex-col justify-between group transition-colors")}>
-                            <div className={cn("absolute inset-0 transition-all", theme.rightOverlayClass)}></div>
-                            <span className={cn("relative z-10 px-2 py-1 text-xs w-fit border self-end font-bold", theme.bg, theme.border, theme.text)}>{data.visual_card.right_label}</span>
-
-                            {/* Visual Placeholder for Image Prompt */}
-                            <div className="flex-1 flex items-center justify-center text-center p-4">
-                                <p className="text-xs opacity-60 max-w-[80%]">
-                                    [IMG: Data Visualization]
-                                </p>
+                        <div className="w-1/2 h-full relative bg-slate-900">
+                            <div className="absolute top-2 right-2 text-xs font-bold bg-black/50 px-2 py-1 rounded border border-white/20 text-white/70">
+                                {data.visual_card.right_label}
+                            </div>
+                            <div className="flex items-center justify-center h-full text-center p-4">
+                                <span className="text-sm opacity-50 font-mono text-white">[IMG: {data.visual_card.right_label}]</span>
                             </div>
                         </div>
-                    </>
-                )}
-
-                {/* Render Text Elements Overlay (Only if not in error state) */}
-                {!isErrorState && !overrideImage && (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                        {/* Simulation of the text overlays */}
-                        {data.visual_card.render_text_elements.map((el: any, i: number) => (
-                            <div key={i} className={cn("absolute text-xs border px-1 animate-pulse font-bold bg-black", isGamer ? "text-[#39ff14] border-[#39ff14]" : "text-broadcast-yellow border-broadcast-yellow")} style={{ top: `${40 + (i * 10)}%`, left: i % 2 === 0 ? '20%' : '70%' }}>
-                                {el.text}
-                            </div>
-                        ))}
-                        <div className={cn("w-full h-[2px] absolute top-1/2 opacity-50 dashed-line", isGamer ? "bg-[#39ff14]" : "bg-broadcast-yellow")}></div>
                     </div>
                 )}
+
+                {/* Shared Overlays (Text Elements) - Render on top of image or split divs */}
+                {/* Hide overlays in Fail State (Override) */}
+                {!overrideImage && data.visual_card.render_text_elements?.map((el: any, idx: number) => (
+                    <div
+                        key={idx}
+                        className={cn(
+                            "absolute z-10 px-2 py-1 font-bold text-xs tracking-wider border bg-black/80 backdrop-blur-sm shadow-xl",
+                            theme.border,
+                            theme.text
+                        )}
+                        style={{
+                            top: idx === 0 ? '40%' : '60%',
+                            left: idx === 0 ? '25%' : '75%',
+                            transform: 'translate(-50%, -50%)'
+                        }}
+                    >
+                        {el.text}
+                    </div>
+                ))}
             </div>
 
-            {/* Explanation & Mapping */}
+            {/* Explanation & Mapping Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                     <h2 className={cn("text-xl font-bold mb-4 border-b pb-2", theme.subtleBorder)}>Mission Briefing</h2>
